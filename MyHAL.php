@@ -55,6 +55,7 @@ function suppression($dossier, $age) {
 }
 
 include("./normalize.php");
+include("./MyHAL_codes_coll.php");
 
 function mb_ucwords($str) {
   $str = mb_convert_case($str, MB_CASE_TITLE, "UTF-8");
@@ -202,6 +203,7 @@ if (isset($_POST["soumis"])) {
 	$preaut = htmlspecialchars($_POST["preaut"]);
 	$midaut = htmlspecialchars($_POST["midaut"]);
 	$nomaut = htmlspecialchars($_POST["nomaut"]);
+	$coll = htmlspecialchars($_POST["coll"]);
 
 	//export en RTF
 	$Fnm = "./HAL/MyHAL_".$unicite.".rtf";
@@ -243,8 +245,8 @@ if (isset($_POST["soumis"])) {
   }
 	*/
 
-	if (isset($_POST['anneedeb'])) {$anneedeb = "01/01/".$_POST['anneedeb'];}
-  if (isset($_POST['anneefin'])) {$anneefin = "31/12/".$_POST['anneefin'];}
+	if (isset($_POST['anneedeb']) & $_POST['anneedeb'] != "") {$anneedeb = "01/01/".$_POST['anneedeb'];}
+  if (isset($_POST['anneefin']) & $_POST['anneefin'] != "") {$anneefin = "31/12/".$_POST['anneefin'];}
 	
   // si anneedeb et anneefin non définies, on force anneedeb au 01/01/anneeencours et anneefin au 31/12/anneeencours
   if ($anneedeb == '' && $anneefin == '') {
@@ -273,6 +275,7 @@ if (isset($_POST["soumis"])) {
 	$yearfin = $tabanneefin[2];
 	
 	//Recherche des résultats
+	$atesteropt = "";
 	
 	//Conversion des dates au format HAL ISO 8601 jj/mm/aaaa > aaaa-mm-jjT00:00:00Z
   $tabanneedeb = explode('/', $anneedeb);
@@ -281,7 +284,6 @@ if (isset($_POST["soumis"])) {
   $anneefiniso = $tabanneefin[2].'-'.$tabanneefin[1].'-'.$tabanneefin[0].'T00:00:00Z';
   $specificRequestCode = '%20AND%20producedDate_tdate:['.$anneedebiso.'%20TO%20'.$anneefiniso.']';
 	
-	$atesteropt = "";
 	//IdHAL ou auteur ?
 	if (isset($idhal) && $idhal != "") {
 		 $atester = "authIdHal_s:".$idhal;
@@ -299,7 +301,13 @@ if (isset($_POST["soumis"])) {
 		$atester .= ")";
 	}
 	
-	$reqAPI = "http://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s&sort=producedDate_tdate desc";
+	//Collection
+	if (isset($coll) && $coll != "") {
+		$collection_exp = array_search($coll, $CODCOLL_LISTE);
+		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
+	}
+	
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s&sort=producedDate_tdate desc";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -357,7 +365,17 @@ Nom <input type="text" id="nomaut" name="nomaut" class="form-control" style="hei
 <label for="anneefin">Jusqu'au <i>(AAAA)</i>&nbsp;</label>
 <input type="text" class="form-control" id="anneefin" size="1" style="width:100px; height:25px;" name="anneefin" value="<?php echo $yearfin;?>">
 </select></td></tr>
-</table>
+</table><br><br>
+<p class="form-inline"><b><label for="coll">Code collection : </label></b>
+<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
+<option value=""></option>
+<?php
+foreach ($CODCOLL_LISTE as $v) {
+	if ($coll == $v) {$sel = "selected";}else{$sel = "";}
+	echo ("<option ".$sel." value='".$v."'>".$v."</option>");
+}
+?>
+</select>
 <br><br>
 <input type="submit" class="btn btn-md btn-primary" value="Valider" name="soumis">
 </form>
