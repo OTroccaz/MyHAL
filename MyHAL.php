@@ -307,7 +307,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s&sort=producedDate_tdate desc";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s&sort=producedDate_tdate desc";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -392,7 +392,12 @@ if (isset($_POST["soumis"])) {
 		echo '<br><br>';
 		foreach($results->response->docs as $entry){
 			echo $entry->citationFull_s.'<br><br>';
+			$sect->writeText($entry->label_s, $font);
+			$sect->writeText("<br><br>", $font);
 		}
+		$rtfic->save($Fnm);
+		echo '<center><b><a href="'.$Fnm.'">Exporter les données affichées en RTF</a></b></center>';
+		echo '<br><br>';
 	}
 	
 }
