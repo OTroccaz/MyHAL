@@ -300,6 +300,18 @@ if (isset($_POST["soumis"])) {
 			$atester .= "authFullName_s:\"".substr($preaut, 0, 1).substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
 			$atester .= "authFullName_s:\"".substr($preaut, 0, 1).".".substr($midaut, 0, 1).". ".$nomaut."\"%20OR%20";
 		}
+		//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+		if (strpos($nomaut, " ") !== false) {
+			$atester .= "authFullName_s:\"".$preaut." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+			if ($midaut != "") {
+				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).".".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+			}
+		}
 		$atester = substr($atester, 0, (strlen($atester) - 8));
 		$atester .= ")";
 	}
