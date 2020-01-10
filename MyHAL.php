@@ -23,8 +23,8 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
             "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="fr">
 <head>
-  <title>MyHAL : outil d’extraction des publications HAL d’un auteur</title>
-  <meta name="Description" content="MyHAL : outil d’extraction des publications HAL d’un auteur">
+  <title>MyHAL : tool for retrieving an author's HAL publications</title>
+  <meta name="Description" content="MyHAL : tool for retrieving an author's HAL publications">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <link rel="icon" type="type/ico" href="favicon.ico">
@@ -56,6 +56,7 @@ function suppression($dossier, $age) {
 
 include("./normalize.php");
 include("./MyHAL_codes_coll.php");
+include("./MyHAL_docType.php");
 
 function mb_ucwords($str) {
   $str = mb_convert_case($str, MB_CASE_TITLE, "UTF-8");
@@ -200,9 +201,9 @@ $unicite = time();
 
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
-	$preaut = htmlspecialchars($_POST["preaut"]);
-	$midaut = htmlspecialchars($_POST["midaut"]);
-	$nomaut = htmlspecialchars($_POST["nomaut"]);
+	$preaut = ucwords(htmlspecialchars($_POST["preaut"]));
+	$midaut = ucwords(htmlspecialchars($_POST["midaut"]));
+	$nomaut = ucwords(htmlspecialchars($_POST["nomaut"]));
 	$coll = htmlspecialchars($_POST["coll"]);
 
 	//export en RTF
@@ -294,6 +295,8 @@ if (isset($_POST["soumis"])) {
 		$atester .= "authFullName_s:\"".substr($preaut, 0, 1)." ".$nomaut."\"%20OR%20";
 		$atester .= "authFullName_s:\"".substr($preaut, 0, 1).". ".$nomaut."\"%20OR%20";
 		if ($midaut != "") {
+			$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
+			$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".$nomaut."\"%20OR%20";
 			$atester .= "authFullName_s:\"".substr($preaut, 0, 1).substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
 			$atester .= "authFullName_s:\"".substr($preaut, 0, 1).".".substr($midaut, 0, 1).". ".$nomaut."\"%20OR%20";
 		}
@@ -307,7 +310,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s&sort=producedDate_tdate desc";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s&sort=docType_s asc";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -336,37 +339,34 @@ if (isset($_POST["soumis"])) {
 </table>
 <hr style="color: #467666; height: 1px; border-width: 1px; border-top-color: #467666; border-style: inset;">
 
-<p>MyHAL permet d’afficher et d’exporter en RTF la liste des articles HAL d’un auteur,
-à partir d’un script PHP créé par <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a> (ECOBIO - OSUR) pour l’Université de Rennes 1.
-<br>Pour tout renseignement, n'hésitez pas à contacter <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> ou <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a>.</p>
-
-<h2>Paramétrage</h2>
+<p>MyHAL is a PHP program by <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a> (ECOBIO - OSUR) to help you check your publication list in HAL.
+<br>If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a>.</p>
 
 <form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php">
-<p class="form-inline"><b><label for="auteur">Auteur : </label></b>
+<p class="form-inline"><b><label for="auteur">Enter your : </label></b>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Prénom <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+<b>First name</b> (including accents and special characters!) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Middle name" <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+Middle name (optionnal) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Nom <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
-<h2><b><u>ou</u></b></h2>
-<p class="form-inline"><b><label for="idhal">Identifiant alphabétique auteur HAL</label></b> <i>(IdHAL > olivier-troccaz, par exemple)</i> :
+<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
+<h3><b><u>or</u></b></h3>
+<p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.png"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
 <input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = '';">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://hal.archives-ouvertes.fr/page/mon-idhal">Créer mon IdHAL</a></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://hal.archives-ouvertes.fr/page/mon-idhal">Create my IdHAL</a></p>
 <br>
 <!--Période-->
 <table>
-<tr class="form-inline"><td><label class="nameField" for="periode">Période :&nbsp;</label></td>
+<tr class="form-inline"><td><label class="nameField" for="periode">Publication Date :&nbsp;</label></td>
 <td>
 
-<label for="anneedeb">Du <i>(AAAA)</i>&nbsp;</label><input type="text" class="form-control" id="anneedeb" style="width:100px; height:25px;" name="anneedeb" value="<?php echo $yeardeb;?>">
+<label for="anneedeb">From <i>(AAAA)</i>&nbsp;</label><input type="text" class="form-control" id="anneedeb" style="width:100px; height:25px;" name="anneedeb" value="<?php echo $yeardeb;?>">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<label for="anneefin">Jusqu'au <i>(AAAA)</i>&nbsp;</label>
+<label for="anneefin">To <i>(AAAA)</i>&nbsp;</label>
 <input type="text" class="form-control" id="anneefin" size="1" style="width:100px; height:25px;" name="anneefin" value="<?php echo $yearfin;?>">
 </select></td></tr>
 </table><br><br>
-<p class="form-inline"><b><label for="coll">Code collection : </label></b>
+<p class="form-inline"><b><label for="coll">Your lab <a class=info onclick='return false' href="#"><img src="./img/pdi.png"><span>optional but may be useful if you have namesakes (homonymes)</span></a> : </label></b>
 <select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
 <option value=""></option>
 <?php
@@ -377,7 +377,7 @@ foreach ($CODCOLL_LISTE as $v) {
 ?>
 </select>
 <br><br>
-<input type="submit" class="btn btn-md btn-primary" value="Valider" name="soumis">
+<input type="submit" class="btn btn-md btn-primary" value="Submit" name="soumis">
 </form>
 
 <?php
@@ -389,11 +389,20 @@ if (isset($_POST["soumis"])) {
 		echo ('Aucun résultat');
 	}else{
 		echo '<b>'.$numFound.' publication(s)</b>';
-		echo '<br><br>';
+		$i = 1;
+		$docType = $results->response->docs[0]->docType_s;
+		echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
+		$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $font);
 		foreach($results->response->docs as $entry){
-			echo $entry->citationFull_s.'<br><br>';
-			$sect->writeText($entry->label_s, $font);
+			if ($docType != $entry->docType_s) {//Nouveau type de document
+				$docType = $entry->docType_s;
+				echo '<br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
+				$sect->writeText("<br><br>".$DOCTYPE_LISTE[$docType]."<br><br>", $font);
+			}
+			echo $i.". ".$entry->citationFull_s.'<br><br>';
+			$sect->writeText($i.". ".$entry->label_s, $font);
 			$sect->writeText("<br><br>", $font);
+			$i++;
 		}
 		$rtfic->save($Fnm);
 		echo '<center><b><a href="'.$Fnm.'">Exporter les données affichées en RTF</a></b></center>';
