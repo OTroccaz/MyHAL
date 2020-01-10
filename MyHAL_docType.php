@@ -1,7 +1,7 @@
 <?php
 //liste des docTypes HAL
 $DOCTYPE_LISTE = array(
-'ART' =>'Articles',
+'ART' =>'Journal articles',
 'COMM' =>'Conference papers',
 'COUV' =>'Book chapters',
 'DOUV' =>'Proceedings, Book Editions',

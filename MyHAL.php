@@ -322,7 +322,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s&sort=docType_s asc";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s asc";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -411,7 +411,7 @@ if (isset($_POST["soumis"])) {
 				echo '<br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
 				$sect->writeText("<br><br>".$DOCTYPE_LISTE[$docType]."<br><br>", $font);
 			}
-			echo $i.". ".$entry->citationFull_s.'<br><br>';
+			echo $i.". ".str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s.'<br><br>');
 			$sect->writeText($i.". ".$entry->label_s, $font);
 			$sect->writeText("<br><br>", $font);
 			$i++;
