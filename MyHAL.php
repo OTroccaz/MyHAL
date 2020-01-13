@@ -338,10 +338,10 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s%20ASC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s%20ASC,producedDate_tdate%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
-	//echo $reqAPI;
+	echo $reqAPI;
 	
 	$contents = file_get_contents($reqAPI);
 	//$contents = utf8_encode($contents);
