@@ -201,9 +201,13 @@ $unicite = time();
 
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
-	$preaut = ucwords(htmlspecialchars($_POST["preaut"]));
-	$midaut = ucwords(htmlspecialchars($_POST["midaut"]));
-	$nomaut = ucwords(htmlspecialchars($_POST["nomaut"]));
+	$preaut = ucwords(htmlspecialchars(strtolower($_POST["preaut"])));
+	$midaut = ucwords(htmlspecialchars(strtolower($_POST["midaut"])));
+	$nomaut = ucwords(htmlspecialchars(strtolower($_POST["nomaut"])));
+	if (strpos($nomaut, "-") !== false) {
+		$tabnom = explode("-", $nomaut);
+		$nomaut = ucfirst($tabnom[0])."-".ucfirst($tabnom[1]);
+	}
 	$coll = htmlspecialchars($_POST["coll"]);
 
 	//export en RTF
@@ -310,6 +314,18 @@ if (isset($_POST["soumis"])) {
 				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
 				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
 				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).".".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+			}
+		}
+		//Si présence de tirets dans le nom, tester aussi en les remplaçant par des tirets
+		if (strpos($nomaut, "-") !== false) {
+			$atester .= "authFullName_s:\"".$preaut." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+			if ($midaut != "") {
+				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).".".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
 			}
 		}
 		$atester = substr($atester, 0, (strlen($atester) - 8));
