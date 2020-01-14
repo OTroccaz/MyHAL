@@ -332,6 +332,46 @@ if (isset($_POST["soumis"])) {
 				$atester .= "authFullName_s:\"".substr($preaut, 0, 1).".".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
 			}
 		}
+
+		//Réitérer les tests avec prénom et nom 'nettoyés' des caractère accentués
+		$preautnet = wd_remove_accents($preaut);
+		$midautnet = wd_remove_accents($midaut);
+		$nomautnet = wd_remove_accents($nomaut);
+		
+		$atester .= "authFullName_s:\"".$preautnet." ".$nomautnet."\"%20OR%20";
+		$atester .= "authFullName_s:\"".substr($preautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
+		$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
+		if ($midautnet != "") {
+			$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).substr($midautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).".".substr($midautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
+		}
+		//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+		if (strpos($nomautnet, " ") !== false) {
+			$atester .= "authFullName_s:\"".$preautnet." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+			if ($midautnet != "") {
+				$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).".".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+			}
+		}
+		//Si présence de tirets dans le nom, tester aussi en les remplaçant par des tirets
+		if (strpos($nomautnet, "-") !== false) {
+			$atester .= "authFullName_s:\"".$preautnet." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+			$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+			if ($midautnet != "") {
+				$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".substr($preautnet, 0, 1).".".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+			}
+		}
+		
 		$atester = substr($atester, 0, (strlen($atester) - 8));
 		$atester .= ")";
 	}
@@ -342,7 +382,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s%20ASC,producedDate_tdate%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s%20ASC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
