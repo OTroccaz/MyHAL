@@ -201,12 +201,16 @@ $unicite = time();
 
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
-	$preaut = ucwords(htmlspecialchars(strtolower($_POST["preaut"])));
-	$midaut = ucwords(htmlspecialchars(strtolower($_POST["midaut"])));
-	$nomaut = ucwords(htmlspecialchars(strtolower($_POST["nomaut"])));
+	$preaut = ucwords(htmlspecialchars(mb_strtolower($_POST["preaut"], 'UTF-8')));
+	$midaut = ucwords(htmlspecialchars(mb_strtolower($_POST["midaut"], 'UTF-8')));
+	$nomaut = ucwords(htmlspecialchars(mb_strtolower($_POST["nomaut"], 'UTF-8')));
 	if (strpos($nomaut, "-") !== false) {
 		$tabnom = explode("-", $nomaut);
 		$nomaut = ucfirst($tabnom[0])."-".ucfirst($tabnom[1]);
+	}
+	if (strpos($preaut, "-") !== false) {
+		$tabpre = explode("-", $preaut);
+		$preaut = ucfirst($tabpre[0])."-".ucfirst($tabpre[1]);
 	}
 	$coll = htmlspecialchars($_POST["coll"]);
 
@@ -341,7 +345,7 @@ if (isset($_POST["soumis"])) {
 	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s%20ASC,producedDate_tdate%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
-	echo $reqAPI;
+	//echo $reqAPI;
 	
 	$contents = file_get_contents($reqAPI);
 	//$contents = utf8_encode($contents);
