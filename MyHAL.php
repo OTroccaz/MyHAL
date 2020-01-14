@@ -260,7 +260,7 @@ if (isset($_POST["soumis"])) {
   // si anneedeb et anneefin non définies, on force anneedeb au 01/01/anneeencours et anneefin au 31/12/anneeencours
   if ($anneedeb == '' && $anneefin == '') {
 		$anneeencours = date('Y', time());
-    $anneedeb = date('d/m/Y', mktime(0, 0, 0, 1, 1, $anneeencours));
+    $anneedeb = date('d/m/Y', mktime(0, 0, 0, 1, 1, ($anneeencours-5)));
     $anneefin = date('d/m/Y', mktime(0, 0, 0, 12, 31, $anneeencours));
   }
   // si anneedeb défini mais pas anneefin, on force anneefin à aujourd'hui
