@@ -444,7 +444,7 @@ Middle name (optionnal) <input type="text" id="midaut" name="midaut" class="form
 <?php
 foreach ($CODCOLL_LISTE as $v) {
 	if ($coll == $v) {$sel = "selected";}else{$sel = "";}
-	echo ("<option ".$sel." value='".$v."'>".$v."</option>");
+	echo ("<option ".$sel." value=\"".$v."\">".$v."</option>");
 }
 ?>
 </select>
