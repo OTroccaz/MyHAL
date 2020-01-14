@@ -382,7 +382,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s&sort=docType_s%20ASC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -463,13 +463,21 @@ if (isset($_POST["soumis"])) {
 		echo '<b>'.$numFound.' publication(s)</b>';
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
+		$year = $results->response->docs[0]->producedDateY_i;
 		echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
-		$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $font);
+		$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+		echo '<h6><b>'.$year.'</b></h6>';
+		$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 		foreach($results->response->docs as $entry){
 			if ($docType != $entry->docType_s) {//Nouveau type de document
 				$docType = $entry->docType_s;
 				echo '<br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
-				$sect->writeText("<br><br>".$DOCTYPE_LISTE[$docType]."<br><br>", $font);
+				$sect->writeText("<br><br>".$DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+			}
+			if ($year != $entry->producedDateY_i) {//Année différente
+				$year = $entry->producedDateY_i;
+				echo '<h6><b>'.$year.'</b></h6>';
+				$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 			}
 			echo $i.". ".str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s.'<br><br>');
 			$sect->writeText($i.". ".$entry->label_s, $font);
