@@ -199,6 +199,8 @@ suppression("./HAL", 3600);
 //Unicité des fichiers RTF créés
 $unicite = time();
 
+$collcodechk = "";
+
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
 	$preaut = ucwords(htmlspecialchars(mb_strtolower($_POST["preaut"], 'UTF-8')));
@@ -213,6 +215,7 @@ if (isset($_POST["soumis"])) {
 		$preaut = ucfirst($tabpre[0])."-".ucfirst($tabpre[1]);
 	}
 	$coll = htmlspecialchars($_POST["coll"]);
+	if (isset($_POST["collcode"]) && $_POST["collcode"] == "oui") {$collcodechk = "checked=\"\"";}
 
 	//export en RTF
 	$Fnm = "./HAL/MyHAL_".$unicite.".rtf";
@@ -382,7 +385,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -417,13 +420,13 @@ if (isset($_POST["soumis"])) {
 <form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php">
 <p class="form-inline"><b><label for="auteur">Enter your : </label></b>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>First name</b> (including accents and special characters!) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+<b>First name</b> (<font color=red>including accents and special characters!</font>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Middle name (optionnal) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:180px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
+<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
 <h3><b><u>or</u></b></h3>
-<p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.png"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
+<p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
 <input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://hal.archives-ouvertes.fr/page/mon-idhal">Create my IdHAL</a></p>
 <br>
@@ -438,7 +441,7 @@ Middle name (optionnal) <input type="text" id="midaut" name="midaut" class="form
 <input type="text" class="form-control" id="anneefin" size="1" style="width:100px; height:25px;" name="anneefin" value="<?php echo $yearfin;?>">
 </select></td></tr>
 </table><br><br>
-<p class="form-inline"><b><label for="coll">Your lab <a class=info onclick='return false' href="#"><img src="./img/pdi.png"><span>optional but may be useful if you have namesakes (homonymes)</span></a> : </label></b>
+<p class="form-inline"><b><label for="coll">Your lab <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>optional but may be useful if you have namesakes (homonymes)</span></a> : </label></b>
 <select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
 <option value=""></option>
 <?php
@@ -448,6 +451,8 @@ foreach ($CODCOLL_LISTE as $v) {
 }
 ?>
 </select>
+<p class="form-inline"><b><label for="collcode">Check if your papers are included in your lab Hceres list</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list</span></a> :
+<input type="checkbox" id="collcode" value="oui" name="collcode" class="form-control" style="height:15px;" <?php echo $collcodechk;?>></p>
 <br><br>
 <input type="submit" class="btn btn-md btn-primary" value="Submit" name="soumis">
 </form>
@@ -479,8 +484,21 @@ if (isset($_POST["soumis"])) {
 				echo '<h6><b>'.$year.'</b></h6>';
 				$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 			}
-			echo $i.". ".str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s.'<br><br>');
-			$sect->writeText($i.". ".$entry->label_s, $font);
+			echo $i.". ";
+			$sect->writeText($i.". ", $font);
+			//Codes collection
+			if ($collcodechk == "checked=\"\"") {
+				$collCodeList = "";
+				foreach($entry->collCode_s as $collCode){
+					if (array_key_exists($collCode, $CODCOLL_LISTE) && strpos($collCodeList, $collCode) === false) {
+						$collCodeList .= $collCode." - ";
+						echo "<font color=red>".$collCode." - </font>";
+						$sect->writeText($collCode." - ", $font);
+					}
+				}
+			}
+			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s.'<br><br>');
+			$sect->writeText($entry->label_s, $font);
 			$sect->writeText("<br><br>", $font);
 			$i++;
 		}
