@@ -509,3 +509,6 @@ if (isset($_POST["soumis"])) {
 	
 }
 ?>
+<?php
+include('./bas.php');
+?>
