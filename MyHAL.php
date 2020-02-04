@@ -487,7 +487,7 @@ if (isset($_POST["soumis"])) {
 			echo $i.". ";
 			$sect->writeText($i.". ", $font);
 			//Codes collection
-			if ($collcodechk == "checked=\"\"") {
+			if ($collcodechk == "checked=\"\"" && isset($entry->collCode_s)) {
 				$collCodeList = "";
 				foreach($entry->collCode_s as $collCode){
 					if (array_key_exists($collCode, $CODCOLL_LISTE) && strpos($collCodeList, $collCode) === false) {
