@@ -192,6 +192,7 @@ $anneedeb = "";
 $anneefin = "";
 $yeardeb = "";
 $yearfin = "";
+$coll2 = "";
 
 //Suppression des fichiers du dossier HAL créés il y a plus d'une heure
 suppression("./HAL", 3600);
@@ -215,6 +216,7 @@ if (isset($_POST["soumis"])) {
 		$preaut = ucfirst($tabpre[0])."-".ucfirst($tabpre[1]);
 	}
 	$coll = htmlspecialchars($_POST["coll"]);
+	$coll2 = htmlspecialchars($_POST["coll2"]);
 	if (isset($_POST["collcode"]) && $_POST["collcode"] == "oui") {$collcodechk = "checked=\"\"";}
 
 	//export en RTF
@@ -383,9 +385,13 @@ if (isset($_POST["soumis"])) {
 	if (isset($coll) && $coll != "") {
 		$collection_exp = array_search($coll, $CODCOLL_LISTE);
 		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
+	}else{
+		if (isset($coll2) && $coll2 != "") {
+			$atesteropt = "%20AND%20collCode_s:".$coll2;
+		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -420,11 +426,11 @@ if (isset($_POST["soumis"])) {
 <form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php">
 <p class="form-inline"><b><label for="auteur">Enter your : </label></b>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>First name</b> (<font color=red>including accents and special characters!</font>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+<b>First name</b> (<font color=red>including accents and special characters!</font> - <i>eg. Hélène</i>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
+<b>Last name</b> <i>(eg. Langevin-Joliot)</i> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
 <h3><b><u>or</u></b></h3>
 <p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
 <input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = '';">
@@ -442,15 +448,18 @@ Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-
 </select></td></tr>
 </table><br><br>
 <p class="form-inline"><b><label for="coll">Your lab <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>optional but may be useful if you have namesakes (homonymes)</span></a> : </label></b>
-<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
+<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;" onChange="document.getElementById('coll2').value = '';">
 <option value=""></option>
 <?php
 foreach ($CODCOLL_LISTE as $v) {
-	if ($coll == $v) {$sel = "selected";}else{$sel = "";}
+	if (isset($coll) && $coll == $v) {$sel = "selected";}else{$sel = "";}
 	echo ("<option ".$sel." value=\"".$v."\">".$v."</option>");
 }
 ?>
 </select>
+<!--Or your HAL collection code-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+or your HAL collection code : <input type="text" id="coll2" name="coll2" class="form-control" style="height: 25px; width:150px" value="<?php echo $coll2;?>" onkeydown="document.getElementById('coll').value = '';">
 <p class="form-inline"><b><label for="collcode">Check if your papers are included in your lab Hceres list</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list</span></a> :
 <input type="checkbox" id="collcode" value="oui" name="collcode" class="form-control" style="height:15px;" <?php echo $collcodechk;?>></p>
 <br><br>
@@ -497,7 +506,11 @@ if (isset($_POST["soumis"])) {
 					}
 				}
 			}
-			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s.'<br><br>');
+			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s);
+			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
+				echo ("&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>");
+			}
+			echo ('<br><br>');
 			$sect->writeText($entry->label_s, $font);
 			$sect->writeText("<br><br>", $font);
 			$i++;
