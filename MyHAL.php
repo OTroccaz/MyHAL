@@ -426,11 +426,11 @@ if (isset($_POST["soumis"])) {
 <form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php">
 <p class="form-inline"><b><label for="auteur">Enter your : </label></b>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>First name</b> (<font color=red>including accents and special characters!</font> - <i>eg. Hélène</i>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+<b>First name</b> (<font color=red>including accents and special characters!</font>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>Last name</b> <i>(eg. Langevin-Joliot)</i> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
+<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
 <h3><b><u>or</u></b></h3>
 <p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
 <input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = '';">
@@ -472,9 +472,10 @@ if (isset($_POST["soumis"])) {
 	
 	echo '<br><br>';
 	if ($numFound == 0) {//Y-a-t-il au moins un résultat ?
-		echo ('Aucun résultat');
+		echo ('No result<br>');
+		echo ('<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>');
 	}else{
-		echo '<b>'.$numFound.' publication(s)</b>';
+		echo '<b>'.$numFound.' paper(s)</b>';
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
 		$year = $results->response->docs[0]->producedDateY_i;
