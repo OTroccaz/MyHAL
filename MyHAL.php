@@ -201,6 +201,7 @@ suppression("./HAL", 3600);
 $unicite = time();
 
 $collcodechk = "";
+$showfivechk = "checked=\"\"";
 
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
@@ -218,6 +219,8 @@ if (isset($_POST["soumis"])) {
 	$coll = htmlspecialchars($_POST["coll"]);
 	$coll2 = htmlspecialchars($_POST["coll2"]);
 	if (isset($_POST["collcode"]) && $_POST["collcode"] == "oui") {$collcodechk = "checked=\"\"";}
+	if ((isset($_POST["showfive"]) && $_POST["showfive"] == "oui")) {$showfivechk = "checked=\"\"";}else{$showfivechk = "";}
+
 
 	//export en RTF
 	$Fnm = "./HAL/MyHAL_".$unicite.".rtf";
@@ -391,7 +394,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -462,7 +465,8 @@ foreach ($CODCOLL_LISTE as $v) {
 or your HAL collection code : <input type="text" id="coll2" name="coll2" class="form-control" style="height: 25px; width:150px" value="<?php echo $coll2;?>" onkeydown="document.getElementById('coll').value = '';">
 <p class="form-inline"><b><label for="collcode">Check if your papers are included in your lab Hceres list</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list</span></a> :
 <input type="checkbox" id="collcode" value="oui" name="collcode" class="form-control" style="height:15px;" <?php echo $collcodechk;?>></p>
-<br><br>
+<p class="form-inline"><b><label for="showfive">Show 5 first authors et al.</label></b> :
+<input type="checkbox" id="showfive" value="oui" name="showfive" class="form-control" style="height:15px;" <?php echo $showfivechk;?>></p>
 <input type="submit" class="btn btn-md btn-primary" value="Submit" name="soumis">
 </form>
 
@@ -475,7 +479,7 @@ if (isset($_POST["soumis"])) {
 		echo ('No result<br>');
 		echo ('<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>');
 	}else{
-		echo '<b>'.$numFound.' paper(s)</b>';
+		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b>';
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
 		$year = $results->response->docs[0]->producedDateY_i;
@@ -507,17 +511,34 @@ if (isset($_POST["soumis"])) {
 					}
 				}
 			}
-			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $entry->citationFull_s);
+			
+			$citFull = $entry->citationFull_s;
+			$labelS = $entry->label_s;
+			//Si demandé, afficher la liste complète des auteurs
+			if (!isset($_POST["showfive"])) {
+				$listAut = "";
+				$autEtal = "";
+				$iAut = 0;
+				foreach($entry->authFullName_s as $aut){
+					$iAut++;
+					if ($iAut == 6) {$autEtal = $listAut. 'et al.';}
+					$listAut .= $aut.', ';
+				}
+				$listAut = substr($listAut, 0, (strlen($listAut) - 2));
+				$citFull = str_replace($autEtal, $listAut, $citFull);
+				$labelS = str_replace($autEtal, $listAut, $labelS);
+			}
+			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $citFull);
 			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
 				echo ("&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>");
 			}
 			echo ('<br><br>');
-			$sect->writeText($entry->label_s, $font);
+			$sect->writeText($labelS, $font);
 			$sect->writeText("<br><br>", $font);
 			$i++;
 		}
 		$rtfic->save($Fnm);
-		echo '<center><b><a href="'.$Fnm.'">Exporter les données affichées en RTF</a></b></center>';
+		echo '<center><b><a href="'.$Fnm.'">Export to RTF (Word / LibreOffice)</a></b></center>';
 		echo '<br><br>';
 	}
 	
