@@ -187,6 +187,7 @@ $idhal = "";
 $preaut = "";//Prénom auteur
 $midaut = "";//"Middle name" auteur
 $nomaut = "";//Nom auteur
+$altaut = "";//Nom alternatif
 
 $anneedeb = "";
 $anneefin = "";
@@ -208,6 +209,7 @@ if (isset($_POST["soumis"])) {
 	$preaut = ucwords(htmlspecialchars(mb_strtolower($_POST["preaut"], 'UTF-8')));
 	$midaut = ucwords(htmlspecialchars(mb_strtolower($_POST["midaut"], 'UTF-8')));
 	$nomaut = ucwords(htmlspecialchars(mb_strtolower($_POST["nomaut"], 'UTF-8')));
+	$altaut = ucwords(htmlspecialchars(mb_strtolower($_POST["altaut"], 'UTF-8')));
 	if (strpos($nomaut, "-") !== false) {
 		$tabnom = explode("-", $nomaut);
 		$nomaut = ucfirst($tabnom[0])."-".ucfirst($tabnom[1]);
@@ -215,6 +217,10 @@ if (isset($_POST["soumis"])) {
 	if (strpos($preaut, "-") !== false) {
 		$tabpre = explode("-", $preaut);
 		$preaut = ucfirst($tabpre[0])."-".ucfirst($tabpre[1]);
+	}
+	if (strpos($altaut, "-") !== false) {
+		$tabalt = explode("-", $altaut);
+		$altaut = ucfirst($tabalt[0])."-".ucfirst($tabalt[1]);
 	}
 	$coll = htmlspecialchars($_POST["coll"]);
 	$coll2 = htmlspecialchars($_POST["coll2"]);
@@ -307,6 +313,7 @@ if (isset($_POST["soumis"])) {
 	}else{
 		//auteur_exp=soizic chevance,s chevance,s. chevance,sm chevance,s.m. chevance
 		$atester = "(";
+		
 		$atester .= "authFullName_s:\"".$preaut." ".$nomaut."\"%20OR%20";
 		$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut))." ".$nomaut."\"%20OR%20";
 		$atester .= "authFullName_s:\"".prenomCompInit($preaut)." ".$nomaut."\"%20OR%20";
@@ -380,6 +387,82 @@ if (isset($_POST["soumis"])) {
 			}
 		}
 		
+		//Réitérer si présence d'un nom alternatif
+		if (isset($altaut) && $altaut != "") {
+			$atester .= "authFullName_s:\"".$preaut." ".$altaut."\"%20OR%20";
+			$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut))." ".$altaut."\"%20OR%20";
+			$atester .= "authFullName_s:\"".prenomCompInit($preaut)." ".$altaut."\"%20OR%20";
+			if ($midaut != "") {
+				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_s:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+			}
+			//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+			if (strpos($altaut, " ") !== false) {
+				$atester .= "authFullName_s:\"".$preaut." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+				if ($midaut != "") {
+					$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_s:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+				}
+			}
+			//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
+			if (strpos($altaut, "-") !== false) {
+				$atester .= "authFullName_s:\"".$preaut." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+				if ($midaut != "") {
+					$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_s:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_s:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+				}
+			}
+
+			//Réitérer les tests avec prénom et nom 'nettoyés' des caractère accentués
+			$preautnet = wd_remove_accents($preaut);
+			$midautnet = wd_remove_accents($midaut);
+			$altautnet = wd_remove_accents($altaut);
+			
+			$atester .= "authFullName_s:\"".$preautnet." ".$altautnet."\"%20OR%20";
+			$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$altautnet."\"%20OR%20";
+			$atester .= "authFullName_s:\"".prenomCompInit($preautnet)." ".$altautnet."\"%20OR%20";
+			if ($midautnet != "") {
+				$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_s:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$altautnet."\"%20OR%20";
+			}
+			//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+			if (strpos($altautnet, " ") !== false) {
+				$atester .= "authFullName_s:\"".$preautnet." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+				$atester .= "authFullName_s:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+				if ($midautnet != "") {
+					$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_s:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+				}
+			}
+			//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
+			if (strpos($altautnet, "-") !== false) {
+				$atester .= "authFullName_s:\"".$preautnet." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+				$atester .= "authFullName_s:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+				if ($midautnet != "") {
+					$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_s:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_s:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_s:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+				}
+			}
+		}
+		
 		$atester = substr($atester, 0, (strlen($atester) - 8));
 		$atester .= ")";
 	}
@@ -434,12 +517,16 @@ if (isset($_POST["soumis"])) {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <b>First name</b> (<font color=red>including accents and special characters!</font>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
+<p class="form-inline">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
+Alternate name <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>eg. maiden or hyphenated name</span></a> <input type="text" id="altaut" name="altaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $altaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+</p>
 <h3><b><u>or</u></b></h3>
 <p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
-<input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = '';">
+<input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = '';">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://hal.archives-ouvertes.fr/page/mon-idhal">Create my IdHAL</a></p>
 <br>
 <!--Période-->
