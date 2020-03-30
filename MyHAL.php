@@ -387,10 +387,13 @@ if (isset($_POST["soumis"])) {
 	//Collection
 	if (isset($coll) && $coll != "") {
 		$collection_exp = array_search($coll, $CODCOLL_LISTE);
-		$atesteropt = "%20AND%20collCode_s:".$collection_exp;
-	}else{
-		if (isset($coll2) && $coll2 != "") {
-			$atesteropt = "%20AND%20collCode_s:".$coll2;
+		$atesteropt .= "%20AND%20collCode_s:".$collection_exp;
+	}
+	if (isset($coll2) && $coll2 != "") {
+		if (isset($coll) && $coll != "") {
+			$atesteropt .= "%20OR%20collCode_s:".$coll2;
+		}else{
+			$atesteropt .= "%20AND%20collCode_s:".$coll2;
 		}
 	}
 	
@@ -451,7 +454,7 @@ Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-
 </select></td></tr>
 </table><br><br>
 <p class="form-inline"><b><label for="coll">Your lab <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>optional but may be useful if you have namesakes (homonymes)</span></a> : </label></b>
-<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;" onChange="document.getElementById('coll2').value = '';">
+<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
 <option value=""></option>
 <?php
 foreach ($CODCOLL_LISTE as $v) {
@@ -462,7 +465,7 @@ foreach ($CODCOLL_LISTE as $v) {
 </select>
 <!--Or your HAL collection code-->
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-or your HAL collection code : <input type="text" id="coll2" name="coll2" class="form-control" style="height: 25px; width:150px" value="<?php echo $coll2;?>" onkeydown="document.getElementById('coll').value = '';">
+and/or your HAL collection code : <input type="text" id="coll2" name="coll2" class="form-control" style="height: 25px; width:150px" value="<?php echo $coll2;?>">
 <p class="form-inline"><b><label for="collcode">Check if your papers are included in your lab Hceres list</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list</span></a> :
 <input type="checkbox" id="collcode" value="oui" name="collcode" class="form-control" style="height:15px;" <?php echo $collcodechk;?>></p>
 <p class="form-inline"><b><label for="showfive">Show 5 first authors et al.</label></b> :
@@ -479,7 +482,7 @@ if (isset($_POST["soumis"])) {
 		echo ('No result<br>');
 		echo ('<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>');
 	}else{
-		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b>';
+		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br><a href="#export">Export list</a>';
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
 		$year = $results->response->docs[0]->producedDateY_i;
@@ -510,7 +513,13 @@ if (isset($_POST["soumis"])) {
 						$sect->writeText($collCode." - ", $font);
 					}
 				}
+				//HAL collection code
+				if (isset($coll2) && $coll2 != "") {
+					echo "<font color=red>".$coll2." - </font>";
+					$sect->writeText($coll2." - ", $font);
+				}
 			}
+			
 			
 			$citFull = $entry->citationFull_s;
 			$labelS = $entry->label_s;
@@ -538,7 +547,7 @@ if (isset($_POST["soumis"])) {
 			$i++;
 		}
 		$rtfic->save($Fnm);
-		echo '<center><b><a href="'.$Fnm.'">Export to RTF (Word / LibreOffice)</a></b></center>';
+		echo '<center><b><a name="export" href="'.$Fnm.'">Export to RTF (Word / LibreOffice)</a></b></center>';
 		echo '<br><br>';
 	}
 	
