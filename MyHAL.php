@@ -630,7 +630,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_t,docid,linkExtId_s,arxivId_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_t,docid,linkExtId_s,linkExtUrl_s,arxivId_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -786,7 +786,7 @@ if (isset($_POST["soumis"])) {
 				}
 			}
 			if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
-				echo ("&nbsp;<a target='_blank' href='https://arxiv.org/abs/".$entry->arxivId_s."'><img src='./img/arxiv.png'></a>");
+				echo ("&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img src='./img/arxiv.png'></a>");
 			}
 			echo ('<br><br>');
 			$sect->writeText($labelS, $font);
