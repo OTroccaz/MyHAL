@@ -28,7 +28,9 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <link rel="icon" type="type/ico" href="favicon.ico">
-  <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="//code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   <script type='text/x-mathjax-config'>
     MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['$$','$$']]}});
@@ -710,7 +712,47 @@ and/or your HAL collection code : <input type="text" id="coll2" name="coll2" cla
 <input type="submit" class="btn btn-md btn-primary" value="Submit" name="soumis">
 </form>
 
+<script type="text/javascript">
+$(function() {
+	$('#alerte1').dialog({
+		autoOpen: false,
+		closeText: 'hide',
+		closeOnEscape: false,
+		modal: true,
+		hide:'Clip',
+		width: 600
+	});
+	$("#alerte1").dialog("option", "buttons", {
+		"OK": function() {
+		$(this).dialog("close");
+	}
+	});
+});
+</script>
+
+<div id="alerte1" title="Warning!" >
+	<font color="red"><b>Name missing!!! please fill in your First and Last names!</b></font><br /><br />
+</div>
 <?php
+/*
+if (isset($_GET["erreur"]))
+{
+	$erreur = $_GET["erreur"];
+	//if ($erreur == 1) {echo('<script type=\'text/javascript\'>alert(\'<font color=red><b>Name missing!!! please fill in your First and Last names!</b></font>\')</script>');}
+	if
+}
+}
+*/
+
+if (isset($_POST["soumis"]) && ($_POST["preaut"] == "" || $_POST["nomaut"] == "")) {
+	echo('<script type="text/javascript">');
+	echo('$(function() {');
+	echo('$(\'#alerte1\').dialog(\'open\');');
+	echo('});');
+	echo('</script>');
+	include('./bas.php');
+	exit;
+}
 
 if (isset($_POST["soumis"])) {
 	
@@ -719,7 +761,10 @@ if (isset($_POST["soumis"])) {
 		echo ('No result<br>');
 		echo ('<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>');
 	}else{
-		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br><a href="#export">Export list</a>';
+		echo ('<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>');
+		echo ('<a href="#export">Export list <img src=\'./img/export_list.jpg\'></a>');
+		echo (' / ');
+		echo ('<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>');
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
 		$year = $results->response->docs[0]->producedDateY_i;
