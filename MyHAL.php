@@ -630,7 +630,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_t&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_t,docid,linkExtId_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -777,6 +777,13 @@ if (isset($_POST["soumis"])) {
 			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $citFull);
 			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
 				echo ("&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>");
+			}else{
+				if ($entry->docid == "ART" && isset($entry->linkExtId_s) && $entry->linkExtId_s != "arxiv") {
+					echo ("&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img src='./img/add.png'></a>");
+				}
+			}
+			if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
+				echo ("&nbsp;<img src='./img/arxiv.png'>");
 			}
 			echo ('<br><br>');
 			$sect->writeText($labelS, $font);
