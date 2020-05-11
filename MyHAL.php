@@ -731,7 +731,7 @@ $(function() {
 </script>
 
 <div id="alerte1" title="Warning!" >
-	<font color="red"><b>Name missing!!! please fill in your First and Last names!</b></font><br /><br />
+	<font color="red"><b>Name or idHAL missing!!! please fill in your First and Last names or your idHAL!</b></font><br /><br />
 </div>
 <?php
 /*
@@ -744,7 +744,7 @@ if (isset($_GET["erreur"]))
 }
 */
 
-if (isset($_POST["soumis"]) && ($_POST["preaut"] == "" || $_POST["nomaut"] == "")) {
+if (isset($_POST["soumis"]) && ($_POST["preaut"] == "" && $_POST["nomaut"] == "" && $_POST["idhal"] == "")) {
 	echo('<script type="text/javascript">');
 	echo('$(function() {');
 	echo('$(\'#alerte1\').dialog(\'open\');');
