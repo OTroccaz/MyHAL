@@ -655,8 +655,8 @@ if (isset($_POST["soumis"])) {
 
 <table width="100%">
 <tr>
-<td style="text-align: left;"><img alt="MyHAL" height="69px" title="MyHAL" src="./img/logo_Myhal.png"></td>
-<td style="text-align: right;"><img alt="Université de Rennes 1" title="Université de Rennes 1" width="150px" src="./img/logo_UR1_gris_petit.jpg"></td>
+<th scope="col" style="text-align: left;"><img alt="MyHAL" height="69px" title="MyHAL" src="./img/logo_Myhal.png"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Check your paper list</th>
+<th scope="col" style="text-align: right;"><img alt="Université de Rennes 1" title="Université de Rennes 1" width="150px" src="./img/logo_UR1_gris_petit.jpg"></th>
 </tr>
 </table>
 <hr style="color: #467666; height: 1px; border-width: 1px; border-top-color: #467666; border-style: inset;">
