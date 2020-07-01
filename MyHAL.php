@@ -646,7 +646,7 @@ if (isset($_POST["soumis"])) {
 
 ?>
 
-<body style="font-family:calibri,verdana">
+<body style="font-family: calibri, verdana, sans-serif">
 
 <noscript>
 <div align='center' id='noscript'><font color='red'><b>ATTENTION !!! JavaScript est désactivé ou non pris en charge par votre navigateur : cette procédure ne fonctionnera pas correctement.</b></font><br>
