@@ -227,7 +227,7 @@ if (isset($_POST["soumis"])) {
 	$coll = htmlspecialchars($_POST["coll"]);
 	$coll2 = htmlspecialchars($_POST["coll2"]);
 	if (isset($_POST["collcode"]) && $_POST["collcode"] == "oui") {$collcodechk = "checked=\"\"";}
-	if ((isset($_POST["showfive"]) && $_POST["showfive"] == "oui")) {$showfivechk = "checked=\"\"";}else{$showfivechk = "";}
+	if (isset($_POST["showfive"]) && $_POST["showfive"] == "oui") {$showfivechk = "checked=\"\"";}else{$showfivechk = "";}
 
 
 	//export en RTF
@@ -698,7 +698,7 @@ Alternate name (optional)<a class=info onclick='return false' href="#"><img src=
 <?php
 foreach ($CODCOLL_LISTE as $v) {
 	if (isset($coll) && $coll == $v) {$sel = "selected";}else{$sel = "";}
-	echo ("<option ".$sel." value=\"".$v."\">".$v."</option>");
+	echo "<option ".$sel." value=\"".$v."\">".$v."</option>";
 }
 ?>
 </select>
@@ -738,18 +738,18 @@ $(function() {
 if (isset($_GET["erreur"]))
 {
 	$erreur = $_GET["erreur"];
-	//if ($erreur == 1) {echo('<script type=\'text/javascript\'>alert(\'<font color=red><b>Name missing!!! please fill in your First and Last names!</b></font>\')</script>');}
+	//if ($erreur == 1) {echo '<script type=\'text/javascript\'>alert(\'<font color=red><b>Name missing!!! please fill in your First and Last names!</b></font>\')</script>';}
 	if
 }
 }
 */
 
 if (isset($_POST["soumis"]) && ($_POST["preaut"] == "" && $_POST["nomaut"] == "" && $_POST["idhal"] == "")) {
-	echo('<script type="text/javascript">');
-	echo('$(function() {');
-	echo('$(\'#alerte1\').dialog(\'open\');');
-	echo('});');
-	echo('</script>');
+	echo '<script type="text/javascript">';
+	echo '$(function() {';
+	echo '$(\'#alerte1\').dialog(\'open\');';
+	echo '});';
+	echo '</script>';
 	include('./bas.php');
 	exit;
 }
@@ -758,13 +758,13 @@ if (isset($_POST["soumis"])) {
 	
 	echo '<br><br>';
 	if ($numFound == 0) {//Y-a-t-il au moins un résultat ?
-		echo ('No result<br>');
-		echo ('<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>');
+		echo 'No result<br>';
+		echo '<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>';
 	}else{
-		echo ('<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>');
-		echo ('<a href="#export">Export list <img src=\'./img/export_list.jpg\'></a>');
-		echo (' / ');
-		echo ('<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>');
+		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>';
+		echo '<a href="#export">Export list <img src=\'./img/export_list.jpg\'></a>';
+		echo ' / ';
+		echo '<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>';
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
 		$year = $results->response->docs[0]->producedDateY_i;
@@ -821,19 +821,19 @@ if (isset($_POST["soumis"])) {
 			}
 			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $citFull);
 			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
-				echo ("&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>");
+				echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>";
 			}else{
 				if ($entry->docType_s == "ART") {
 					if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
 					}else{
-						echo ("&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' src='./img/add.png'></a>");
+						echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' src='./img/add.png'></a>";
 					}
 				}
 			}
 			if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
-				echo ("&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img src='./img/arxiv.png'></a>");
+				echo "&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img src='./img/arxiv.png'></a>";
 			}
-			echo ('<br><br>');
+			echo '<br><br>';
 			$sect->writeText($labelS, $font);
 			$sect->writeText("<br><br>", $font);
 			$i++;
