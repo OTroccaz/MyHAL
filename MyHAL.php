@@ -19,25 +19,35 @@ while (stripos($urlnet, "%3C") !== false) {
 if ($redir == "oui") {header("Location: ".$urlnet);}
 ?>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-            "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <title>MyHAL : tool for retrieving an author's HAL publications</title>
-  <meta name="Description" content="MyHAL : tool for retrieving an author's HAL publications">
-  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <link rel="icon" type="type/ico" href="favicon.ico">
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-	<script src="//code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  <script type='text/x-mathjax-config'>
-    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['$$','$$']]}});
-  </script>
-  <link rel="stylesheet" href="./MyHAL.css">
-  <link rel="stylesheet" href="./bootstrap.min.css">
-  <script src="./lib/jscolor-2.0.4/jscolor.js"></script>
+	<meta charset="utf-8" />
+	<title>MyHAL - HAL - UR1</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta content="" name="description" />
+	<meta content="Coderthemes + Lizuka" name="author" />
+	<!-- App favicon -->
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<!-- third party css -->
+	<!-- <link href="./assets/css/vendor/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" /> -->
+	<!-- third party css end -->
+
+	<!-- App css -->
+	<link href="./assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+	<link href="./assets/css/app-hal-ur1.min.css" rel="stylesheet" type="text/css" id="light-style" />
+	<!-- <link href="./assets/css/app-creative-dark.min.css" rel="stylesheet" type="text/css" id="dark-style" /> -->
+	
+	<!-- bundle -->
+	<script src="./assets/js/vendor.min.js"></script>
+	<script src="./assets/js/app.min.js"></script>
+
+	<!-- third party js -->
+	<script src="./assets/js/vendor/Chart.bundle.min.js"></script>
+	<!-- third party js ends -->
+	<script src="./assets/js/pages/hal-ur1.chartjs.js"></script>
+	
 </head>
 
 <?php
@@ -56,7 +66,7 @@ function suppression($dossier, $age) {
   closedir($repertoire);
 }
 
-include("./normalize.php");
+include("./Glob_normalize.php");
 include("./MyHAL_codes_coll.php");
 include("./MyHAL_docType.php");
 
@@ -241,34 +251,6 @@ if (isset($_POST["soumis"])) {
 	$fonth3 = new PHPRtfLite_Font(14, 'Corbel', '#000000', '#FFFFFF');
 	$fonth2 = new PHPRtfLite_Font(16, 'Corbel', '#000000', '#FFFFFF');
 	$parFormat = new PHPRtfLite_ParFormat(PHPRtfLite_ParFormat::TEXT_ALIGN_JUSTIFY);
-
-  /*
-	//Extraction sur un IdHAL > auteur à mettre en évidence
-  if (isset($evhal) && $evhal != "") {
-		$listenominit = "~";
-		$listenomcomp1 = "~";
-		$listenomcomp2 = "~";
-		$listenomcomp3 = "~";
-		$arriv = "~";
-		$depar = "~";
-		$listTab = explode("~", $evhal);
-		$listI = 0;
-		while (isset($listTab[$listI])) {
-			$list = explode(" ", $listTab[$listI]);
-			$listenomcomp1 .= str_replace("_", " ", nomCompEntier($list[1]))." ".str_replace("_", " ", prenomCompEntier($list[0]))."~";
-			$listenomcomp2 .= str_replace("_", " ", prenomCompEntier($list[0]))." ".str_replace("_", " ", nomCompEntier($list[1]))."~";
-			$listenomcomp3 .= mb_strtoupper(nomCompEntier($list[1]), 'UTF-8')." (".prenomCompEntier($list[0]).")~";
-			//si prénom composé et juste les ititiales
-			$prenom = prenomCompInit($list[0]);
-			$listenominit .= str_replace("_", " ", nomCompEntier($list[1]))." ".$prenom.".~";
-			$arriv .= "1900~";
-			$moisactuel = date('n', time());
-			if ($moisactuel >= 10) {$idepar = date('Y', time())+1;}else{$idepar = date('Y', time());}
-			$depar .= $idepar."~";
-			$listI++;
-		}
-  }
-	*/
 
 	if (isset($_POST['anneedeb']) & $_POST['anneedeb'] != "") {$anneedeb = "01/01/".$_POST['anneedeb'];}
   if (isset($_POST['anneefin']) & $_POST['anneefin'] != "") {$anneefin = "31/12/".$_POST['anneefin'];}
@@ -620,7 +602,7 @@ if (isset($_POST["soumis"])) {
 	}
 	
 	//Collection
-	if (isset($coll) && $coll != "") {
+	if (isset($coll) && $coll != "-") {
 		$collection_exp = array_search($coll, $CODCOLL_LISTE);
 		$atesteropt .= "%20AND%20collCode_s:".$collection_exp;
 	}
@@ -632,7 +614,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_t,docid,linkExtId_s,linkExtUrl_s,arxivId_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -646,120 +628,300 @@ if (isset($_POST["soumis"])) {
 
 ?>
 
-<body style="font-family: calibri, verdana, sans-serif">
+<body class="loading" data-layout="topnav" >
 
 <noscript>
-<div align='center' id='noscript'><font color='red'><b>ATTENTION !!! JavaScript est désactivé ou non pris en charge par votre navigateur : cette procédure ne fonctionnera pas correctement.</b></font><br>
-<b>Pour modifier cette option, voir <a target='_blank' href='http://www.libellules.ch/browser_javascript_activ.php'>ce lien</a>.</b></div><br>
+<div class='text-primary' id='noscript'><strong>ATTENTION !!! JavaScript est désactivé ou non pris en charge par votre navigateur : cette procédure ne fonctionnera pas correctement.</strong><br>
+<strong>Pour modifier cette option, voir <a target='_blank' rel='noopener noreferrer' href='http://www.libellules.ch/browser_javascript_activ.php'>ce lien</a>.</strong></div><br>
 </noscript>
 
-<table width="100%">
-<tr>
-<th scope="col" style="text-align: left;"><img alt="MyHAL" height="69px" title="MyHAL" src="./img/logo_Myhal.png"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Check your paper list</th>
-<th scope="col" style="text-align: right;"><img alt="Université de Rennes 1" title="Université de Rennes 1" width="150px" src="./img/logo_UR1_gris_petit.jpg"></th>
-</tr>
-</table>
-<hr style="color: #467666; height: 1px; border-width: 1px; border-top-color: #467666; border-style: inset;">
+        <!-- Begin page -->
+        <div class="wrapper">
 
-<p>MyHAL is a PHP program by <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a> (ECOBIO - OSUR) to help you check your publication list in HAL.
-<br>If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a>.</p>
+            <!-- ============================================================== -->
+            <!-- Start Page Content here -->
+            <!-- ============================================================== -->
 
-<form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php">
-<p class="form-inline"><b><label for="auteur">Enter your : </label></b>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>First name</b> (<font color=red>including accents and special characters!</font>) <input type="text" id="preaut" name="preaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Middle name (optional) <input type="text" id="midaut" name="midaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';"></p>
-<p class="form-inline">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<b>Last name</b> <input type="text" id="nomaut" name="nomaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Alternate name (optional)<a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>eg. maiden or hyphenated name</span></a> <input type="text" id="altaut" name="altaut" class="form-control" style="height: 25px; width:150px" value="<?php echo $altaut;?>" onkeydown="document.getElementById('idhal').value = '';">
-</p>
-<h3><b><u>or</u></b></h3>
-<p class="form-inline"><b><label for="idhal">your idHAL if you have one</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>HAL personal identifier</span></a> <i>(eg. olivier-troccaz)</i> :
-<input type="text" id="idhal" name="idhal" class="form-control" style="height: 25px; width:300px" value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = '';">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://hal.archives-ouvertes.fr/page/mon-idhal">Create my IdHAL</a></p>
-<br>
-<!--Période-->
-<table>
-<tr class="form-inline"><td><label class="nameField" for="periode">Publication Date :&nbsp;</label></td>
-<td>
+            <div class="content-page">
+                <div class="content">
+								
+								<?php
+								include "./Glob_haut.php";
+								?>
+								
+								<!-- Start Content-->
+                    <div class="container-fluid">
 
-<label for="anneedeb">From <i>(AAAA)</i>&nbsp;</label><input type="text" class="form-control" id="anneedeb" style="width:100px; height:25px;" name="anneedeb" value="<?php echo $yeardeb;?>">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<label for="anneefin">To <i>(AAAA)</i>&nbsp;</label>
-<input type="text" class="form-control" id="anneefin" size="1" style="width:100px; height:25px;" name="anneefin" value="<?php echo $yearfin;?>">
-</select></td></tr>
-</table><br><br>
-<p class="form-inline"><b><label for="coll">Your lab <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>optional but may be useful if you have namesakes (homonymes)</span></a> : </label></b>
-<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
-<option value=""></option>
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <div class="page-title-right">
+                                        <nav aria-label="breadcrumb">
+                                            <ol class="breadcrumb bg-light-lighten p-2">
+                                                <li class="breadcrumb-item"><a href="index.php"><i class="uil-home-alt"></i> Accueil HALUR1</a></li>
+                                                <li class="breadcrumb-item active" aria-current="page">My<span class="font-weight-bold">HAL</span></li>
+                                            </ol>
+                                        </nav>
+                                    </div>
+                                    <h4 class="page-title">Check your paper list</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-xl-8 col-lg-6 d-flex">
+                                <!-- project card -->
+                                <div class="card d-block w-100 shadow-lg">
+                                    <div class="card-body">
+                                        
+                                        <!-- project title-->
+                                        <h2 class="h1 mt-0">
+                                            <i class="mdi mdi mdi-account-card-details text-primary"></i>
+                                            <span class="font-weight-light">My</span><span class="text-primary">HAL</span>
+                                        </h2>
+                                        <h5 class="badge badge-primary badge-pill">Outline</h5>
+																				
+																				<img src="./img/elizabeth-jamieson-viaduct-france-unsplash.png" alt="Accueil MyHAL" class="img-fluid"><br>
+																				<p class="font-italic">Photo : Viaduct France by Elizabeth Jamieson on Unsplash (détail)</p>
+
+                                        <p class=" mb-2 text-justify">
+                                           MyHAL is a PHP program program to help authors check their publication list in HAL, made by by Olivier Troccaz (design & coding) and Laurent Jonchère (design). If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a>.
+                                        </p>
+
+
+                                    </div> <!-- end card-body-->
+                                    
+                                </div> <!-- end card-->
+
+                            </div> <!-- end col -->
+                            <div class="col-lg-6 col-xl-4 d-flex">
+                                <div class="card shadow-lg w-100">
+                                    <div class="card-body">
+                                        <h5 class="badge badge-primary badge-pill">Instructions</h5>
+                                        <div class=" mb-2">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    Coming soon
+                                                </li>
+                                            </ul> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end card-->
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-12 d-flex">
+                                <!-- project card -->
+                                <div class="card w-100 d-block shadow-lg">
+                                    <div class="card-body">
+                                        
+                                        <h5 class="badge badge-primary badge-pill">Settings</h5>
+																				
+																				<form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php" class="form-horizontal">
+																						<div class="border border-dark rounded p-2 mb-2">
+																								<div class="form-group row mb-1">
+																										<span class="col-12 col-md-2 col-form-label font-weight-bold">
+																										Enter your :
+																										</span>
+																										
+																										<div class="col-12 col-md-10">
+																												<div class="row mb-2">
+																														<div class="col-md-6 form-inline">
+																																<label for="preaut" class="d-block mr-2 w-30 font-weight-bold">First name : 
+																																		</label>
+																																<input type="text" id="preaut" name="preaut" class="form-control" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<br><br> <span class="small text-primary">(including accents and special characters!)</span>
+																														</div>
+																														<div class="col-md-6 form-inline">
+																																<label for="midaut" class="d-block mr-2 w-30 font-weight-bold">Middle name : 
+																																		<br> <span class="small text-info">Optional</span>
+																																		</label>
+																																<input type="text" id="midaut" name="midaut" class="form-control" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																														</div>
+																												</div>
+
+																												<div class="row">
+																														<div class="col-md-6 form-inline">
+																																<label for="nomaut" class="d-block mr-2 w-30 font-weight-bold">Last name : 
+																																		</label>
+																																<input type="text" id="nomaut" name="nomaut" class="form-control" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<br><br> <span class="small text-primary">(including accents and special characters!)</span>
+																														</div>
+																														<div class="col-md-6 form-inline">
+																																<label for="altaut" class="d-block mr-2 w-30 font-weight-bold">Alternate name : 
+																																		<br> <span class="small text-info">Optional</span>
+																																		</label>
+																																		<div class="input-group">
+																																				<div class="input-group-prepend">
+																																						<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='eg. Maiden or hyphenated name' data-original-title="" data-placement="top">
+																																						<i class="mdi mdi-comment-question text-white"></i>
+																																						</button>
+																																				</div>
+																																<input type="text" id="altaut" name="altaut" class="form-control" value="<?php echo $altaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																														</div>
+																																
+																														</div>
+																												</div>
+
+																												
+																										</div>
+																								</div> <!-- .form-group -->
+																								
+																								<div class="form-group row mb-1">
+																										<div class="col-12">
+																												<h3 class="d-inline-block border-bottom border-primary text-primary">OR</h3>
+																										</div>
+																								</div> <!-- .form-group -->
+
+																								<div class="form-group row mb-2">
+																										<label for="idhal" class="col-12 col-md-2 col-form-label font-weight-bold">
+																										Your idHAL if you have one:
+																										</label>
+																										
+																										<div class="col-12 col-md-10">
+																												<div class="input-group">
+																														<div class="input-group-prepend">
+																																<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='HAL personal identifier. (eg. olivier-troccaz)' data-original-title="" data-placement="top">
+																																<i class="mdi mdi-comment-question text-white"></i>
+																																</button>
+																														</div>
+																														<input type="text" id="idhal" name="idhal" class="form-control"  value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = '';">
+																												<a class="ml-2 small" target="_blank" rel="noopener noreferrer" href="#1">Create your IdHAL</a>
+																												</div>
+
+																												
+																										</div>
+																								</div> <!-- .form-group -->
+																						</div> <!-- .form-group -->		
+																						
+																						<div class="form-group row mb-1">
+																								<div class="col-12 form-inline">
+																										<span class="nameField font-weight-bold">Publication Date :&nbsp;</span>
+																										<label for="anneedeb">From&nbsp;<i>(AAAA)</i>&nbsp;</label>
+																										<input type="text" class="form-control mr-2" id="anneedeb" name="anneedeb" value="<?php echo $yeardeb;?>">
+																										<label for="anneefin">To&nbsp;<i>(AAAA)</i>&nbsp;</label>
+																										<input type="text" class="form-control" id="anneefin" name="anneefin" value="<?php echo $yearfin;?>">
+																								</div>
+																						</div> <!-- .form-group -->
+																						
+																						<div class="form-group row mb-2">
+																								<div class="col-12 col-md-7 form-inline">
+																										<label for="coll" class="mr-2">Your lab: </label>
+																										<div class="input-group">
+																												<div class="input-group-prepend">
+																														<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='Optional but may be useful if you have namesakes (homonymes)' data-original-title="" data-placement="top">
+																														<i class="mdi mdi-comment-question text-white"></i>
+																														</button>
+																												</div>
+																												<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
+																														<option value="-">-</option>
+																														<?php
+																														foreach ($CODCOLL_LISTE as $v) {
+																															if (isset($coll) && $coll == $v) {$sel = "selected";}else{$sel = "";}
+																															echo "<option ".$sel." value=\"".$v."\">".$v."</option>";
+																														}
+																														?>
+																												</select>
+																										</div>
+
+																								</div>
+																								<div class="col-12 col-md-4 form-inline">
+				 
+																										<label for="coll2">and/or your HAL collection code : </label>
+																										<input type="text" id="coll2" name="coll2" class="form-control" value="">
+																										
+																								</div>
+																						</div> <!-- .form-group -->
+																						
+																						<div class="form-group row mb-1">
+																								<div class="form-group col-sm-12">
+																									<div class="custom-control custom-checkbox">
+																										<input type="checkbox" id="collcode" class="custom-control-input" name="collcode" value="oui" <?php echo $collcodechk;?>>
+																										<label for="collcode" class="custom-control-label">
+																										Check if your papers are included in your lab Hceres list
+																										</label>
+																										<button type="button" tabindex="0" class="btn btn-info btn-sm" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list' data-original-title="" data-placement="top">
+																														<i class="mdi mdi-comment-question text-white"></i>
+																										</button>
+																									</div>
+																								</div>
+																						</div> <!-- .form-group -->
+																						
+																						<div class="form-group row mb-1">
+																								<div class="form-group col-sm-12">
+																									<div class="custom-control custom-checkbox">
+																										<input type="checkbox" id="showfive" class="custom-control-input" name="showfive" value="oui" <?php echo $showfivechk;?>>
+																										<label for="showfive" class="custom-control-label">
+																										Show 5 first authors et al.
+																										</label>
+																									</div>
+																								</div>
+																						</div> <!-- .form-group -->
+																								
+																						
+																						<div class="form-group row mt-4">
+                                                <div class="col-12 justify-content-center d-flex">
+                                                    <input type="submit" class="btn btn-md btn-primary btn-lg" value="Submit" name="soumis">
+                                                </div>
+                                            </div>
+																						
+																				</form>
+																				
+																				</div> <!-- end card-body-->
+                                    
+                                </div> <!-- end card-->
+
+                            </div> <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                    </div>
+                    <!-- container -->
+
 <?php
-foreach ($CODCOLL_LISTE as $v) {
-	if (isset($coll) && $coll == $v) {$sel = "selected";}else{$sel = "";}
-	echo "<option ".$sel." value=\"".$v."\">".$v."</option>";
-}
-?>
-</select>
-<!--Or your HAL collection code-->
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-and/or your HAL collection code : <input type="text" id="coll2" name="coll2" class="form-control" style="height: 25px; width:150px" value="<?php echo $coll2;?>">
-<p class="form-inline"><b><label for="collcode">Check if your papers are included in your lab Hceres list</label></b> <a class=info onclick='return false' href="#"><img src="./img/pdi.jpg"><span>Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list</span></a> :
-<input type="checkbox" id="collcode" value="oui" name="collcode" class="form-control" style="height:15px;" <?php echo $collcodechk;?>></p>
-<p class="form-inline"><b><label for="showfive">Show 5 first authors et al.</label></b> :
-<input type="checkbox" id="showfive" value="oui" name="showfive" class="form-control" style="height:15px;" <?php echo $showfivechk;?>></p>
-<input type="submit" class="btn btn-md btn-primary" value="Submit" name="soumis">
-</form>
-
-<script type="text/javascript">
-$(function() {
-	$('#alerte1').dialog({
-		autoOpen: false,
-		closeText: 'hide',
-		closeOnEscape: false,
-		modal: true,
-		hide:'Clip',
-		width: 600
-	});
-	$("#alerte1").dialog("option", "buttons", {
-		"OK": function() {
-		$(this).dialog("close");
-	}
-	});
-});
-</script>
-
-<div id="alerte1" title="Warning!" >
-	<font color="red"><b>Name or idHAL missing!!! please fill in your First and Last names or your idHAL!</b></font><br /><br />
-</div>
-<?php
-/*
-if (isset($_GET["erreur"]))
-{
-	$erreur = $_GET["erreur"];
-	//if ($erreur == 1) {echo '<script type=\'text/javascript\'>alert(\'<font color=red><b>Name missing!!! please fill in your First and Last names!</b></font>\')</script>';}
-	if
-}
-}
-*/
-
-if (isset($_POST["soumis"]) && ($_POST["preaut"] == "" && $_POST["nomaut"] == "" && $_POST["idhal"] == "")) {
+$test = "non";
+if (isset($_POST["soumis"]) && (($_POST["preaut"] == "" || $_POST["nomaut"] == "") && $_POST["idhal"] == "")) {
+	echo '<div id="warning-alert-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">';
+		echo '<div class="modal-dialog modal-md modal-center">';
+				echo '<div class="modal-content">';
+						echo '<div class="modal-body p-4">';
+								echo '<div class="text-center">';
+										echo '<i class="dripicons-warning h1 text-warning"></i>';
+										echo '<h4 class="mt-2">Warning</h4>';
+										echo '<p class="mt-3"><strong>Name or idHAL missing!!!<br>Please fill in your First and Last names or your idHAL!</strong></p>';
+										echo '<button type="button" class="btn btn-warning my-2" data-dismiss="modal">Continuer</button>';
+								echo '</div>';
+						echo '</div>';
+				echo '</div><!-- /.modal-content -->';
+		echo '</div><!-- /.modal-dialog -->';
+	echo '</div><!-- /.modal -->';
 	echo '<script type="text/javascript">';
-	echo '$(function() {';
-	echo '$(\'#alerte1\').dialog(\'open\');';
-	echo '});';
+	echo '		(function($) {';
+	echo '				"use strict";';
+	echo '				$("#warning-alert-modal").modal(';
+	echo '						{"show": true, "backdrop": "static"}';
+	echo '								)';
+	echo '		})(window.jQuery)';
 	echo '</script>';
-	include('./bas.php');
-	exit;
+}else{
+	$test = "oui";
 }
-
-if (isset($_POST["soumis"])) {
-	
-	echo '<br><br>';
+								
+if (isset($_POST["soumis"]) && $test == "oui") {
+	echo '<br>';
+	echo '<div class="container-fluid">';
+	echo '<div class="row">';
+	echo '<div class="col-12">';
+	echo '<div class="card shadow-lg w-100">';
+  echo '<div class="card-body">';
 	if ($numFound == 0) {//Y-a-t-il au moins un résultat ?
 		echo 'No result<br>';
-		echo '<font color="red">>>>> Please check if your first and last names are stated correctly, including accents and special characters</font>';
+		echo '<span class="text-primary">>>>> Please check if your first and last names are stated correctly, including accents and special characters</span>';
 	}else{
 		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>';
 		echo '<a href="#export">Export list <img src=\'./img/export_list.jpg\'></a>';
@@ -802,7 +964,6 @@ if (isset($_POST["soumis"])) {
 				}
 			}
 			
-			
 			$citFull = $entry->citationFull_s;
 			$labelS = $entry->label_s;
 			//Si demandé, afficher la liste complète des auteurs
@@ -810,7 +971,7 @@ if (isset($_POST["soumis"])) {
 				$listAut = "";
 				$autEtal = "";
 				$iAut = 0;
-				foreach($entry->authFullName_t as $aut){
+				foreach($entry->authFullName_s as $aut){
 					$iAut++;
 					if ($iAut == 6) {$autEtal = $listAut. 'et al.';}
 					$listAut .= $aut.', ';
@@ -839,12 +1000,65 @@ if (isset($_POST["soumis"])) {
 			$i++;
 		}
 		$rtfic->save($Fnm);
-		echo '<center><b><a name="export" href="'.$Fnm.'">Export to RTF (Word / LibreOffice)</a></b></center>';
-		echo '<br><br>';
+		echo '<center><b><a name="export" class="btn btn-secondary mt-2" href="'.$Fnm.'">Export to RTF (Word / LibreOffice)</a></b></center>';
+		echo '<br>';
+		echo '</div> <!-- end card-body--> </div> <!-- end card--> </div> <!-- end col --> </div> <!-- end row --></div> </div>  <!-- end container -->';
 	}
-	
 }
 ?>
-<?php
-include('./bas.php');
-?>
+								
+								</div>
+                <!-- content -->
+								
+								<?php
+								include('./Glob_bas.php');
+								?>
+								
+								</div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+
+        </div>
+				
+				<button id="scrollBackToTop" class="btn btn-primary"><i class="mdi mdi-24px text-white mdi-chevron-double-up"></i></button>
+        <!-- END wrapper -->
+				
+				<!-- bundle -->
+				<!-- <script src="./assets/js/vendor.min.js"></script> -->
+				<script src="./assets/js/app.min.js"></script>
+
+				<!-- third party js -->
+				<script src="./assets/js/vendor/Chart.bundle.min.js"></script>
+				<!-- third party js ends -->
+				<script src="./assets/js/pages/hal-ur1.chartjs.js"></script>
+				
+				<script>
+            (function($) {
+                'use strict';
+                $('#warning-alert-modal').modal(
+                    {'show': true, 'backdrop': 'static'}    
+                    
+                        );
+                $(document).scroll(function() {
+                  var y = $(this).scrollTop();
+                  if (y > 200) {
+                    $('#scrollBackToTop').fadeIn();
+                  } else {
+                    $('#scrollBackToTop').fadeOut();
+                  }
+                });
+                $('#scrollBackToTop').each(function(){
+                    $(this).click(function(){ 
+                        $('html,body').animate({ scrollTop: 0 }, 'slow');
+                        return false; 
+                    });
+                });
+            })(window.jQuery)
+        </script>
+
+		</body>
+</html>
+                                    

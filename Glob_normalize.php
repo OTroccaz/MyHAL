@@ -1,4 +1,4 @@
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> -->
 <?php
 function normalize($st) {
     //return preg_replace('/\W+/', '', $st);

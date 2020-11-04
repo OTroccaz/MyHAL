@@ -33,6 +33,8 @@ $CODCOLL_LISTE = array(
 "U917" =>"MICMAC - Microenvironment, Cell Differentiation, Immunology and Cancer (MICMAC)",
 "NUMECAN" =>"NUMECAN - Nutrition, Métabolismes et Cancer (NUMECAN)",
 "OSUR" =>"OSUR - Observatoire des Sciences de l'Univers de Rennes (OSUR)",
-"REPERES" =>"Repères - Recherche en Pharmaco-épidémiologie et Recours aux Soins (Repères)"
+"REPERES" =>"Repères - Recherche en Pharmaco-épidémiologie et Recours aux Soins (Repères)",
+"UNIV-RENNES1"=>"Université de Rennes 1",
+"UNIV-RENNES"=>"Université de Rennes"
 );
 ?>
