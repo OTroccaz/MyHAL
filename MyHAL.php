@@ -987,7 +987,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 				if ($entry->docType_s == "ART") {
 					if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
 					}else{
-						echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' src='./img/add.png'></a>";
+						echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' src='./img/add.png'></a>";
 					}
 				}
 			}
