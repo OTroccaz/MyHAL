@@ -614,7 +614,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s&sort=docType_s%20ASC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s,proceedings_s &sort=docType_s%20ASC,proceedings_s%20DESC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -929,16 +929,43 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 		echo '<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>';
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
+		$subType = "";
 		$year = $results->response->docs[0]->producedDateY_i;
-		echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
-		$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+		if ($docType != "COMM") {
+			echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
+			$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+		}else{
+			if (isset($results->response->docs[0]->proceedings_s) && $results->response->docs[0]->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference papers";}
+			if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
+				$subType = $subTypeN;
+				echo '<br><h4><b>'.$subType.'</b></h4>';
+				$sect->writeText("<br><br>".$subType."<br><br>", $fonth2);
+			}
+		}
 		echo '<h6><b>'.$year.'</b></h6>';
 		$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 		foreach($results->response->docs as $entry){
 			if ($docType != $entry->docType_s) {//Nouveau type de document
 				$docType = $entry->docType_s;
-				echo '<br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
-				$sect->writeText("<br><br>".$DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+				if ($docType != "COMM") {
+					echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
+					$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+				}else{
+					if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference papers";}
+					if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
+						$subType = $subTypeN;
+						echo '<br><h4><b>'.$subType.'</b></h4>';
+						$sect->writeText("<br><br>".$subType."<br><br>", $fonth2);
+					}
+				}
+			}
+			if ($docType == "COMM") {
+				if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference papers";}
+				if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
+					$subType = $subTypeN;
+					echo '<br><h4><b>'.$subType.'</b></h4>';
+					$sect->writeText("<br><br>".$subType."<br><br>", $fonth2);
+				}
 			}
 			if ($year != $entry->producedDateY_i) {//Année différente
 				$year = $entry->producedDateY_i;
@@ -984,7 +1011,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
 				echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>";
 			}else{
-				if ($entry->docType_s == "ART") {
+				if ($entry->docType_s == "ART" ||($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
 					if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
 					}else{
 						echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' src='./img/add.png'></a>";
