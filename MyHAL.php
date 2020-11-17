@@ -687,7 +687,7 @@ if (isset($_POST["soumis"])) {
 																				<p class="font-italic">Photo : Viaduct France by Elizabeth Jamieson on Unsplash (détail)</p>
 
                                         <p class=" mb-2 text-justify">
-                                           MyHAL is a PHP program program to help authors check their publication list in HAL, made by by Olivier Troccaz (design & coding) and Laurent Jonchère (design). If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a>.
+                                           MyHAL is a PHP program to help authors check their publication list in HAL, made by by Olivier Troccaz (design & coding) and Laurent Jonchère (design). If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://ecobio.univ-rennes1.fr/personnel.php?qui=Olivier_Troccaz">Olivier Troccaz</a>.
                                         </p>
 
 
@@ -965,7 +965,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 			echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
 			$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
 		}else{
-			if (isset($results->response->docs[0]->proceedings_s) && $results->response->docs[0]->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference papers";}
+			if (isset($results->response->docs[0]->proceedings_s) && $results->response->docs[0]->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
 			if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
 				$subType = $subTypeN;
 				echo '<br><h4><b>'.$subType.'</b></h4>';
@@ -981,7 +981,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 					echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
 					$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
 				}else{
-					if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference papers";}
+					if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
 					if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
 						$subType = $subTypeN;
 						echo '<br><h4><b>'.$subType.'</b></h4>';
@@ -990,7 +990,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 				}
 			}
 			if ($docType == "COMM") {
-				if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference papers";}
+				if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
 				if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
 					$subType = $subTypeN;
 					echo '<br><h4><b>'.$subType.'</b></h4>';
