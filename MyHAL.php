@@ -800,6 +800,35 @@ if (isset($_POST["soumis"])) {
 																						</div> <!-- .form-group -->		
 																						
 																						<div class="form-group row mb-1">
+																								<div class="form-group col-sm-2">
+																									<label for="anneedeb">Publication Date : From</label>
+																									<select id="anneedeb" class="custom-select" name="anneedeb">
+																									<?php
+																									$moisactuel = date('n', time());
+																									if ($moisactuel >= 10) {$i = date('Y', time())+1;}else{$i = date('Y', time());}
+																									while ($i >= date('Y', time()) - 50) {
+																										if (isset($yeardeb) && $yeardeb == $i) {$txt = "selected";}else{$txt = "";}
+																										echo '<option value='.$i.' '.$txt.'>'.$i.'</option>' ;
+																										$i--;
+																									}
+																									?>
+																									</select>
+																								</div>
+																								<div class="form-group col-sm-2">
+																									<label for="anneefin">To</label>
+																									<select id="anneefin" class="custom-select" name="anneefin">
+																									<?php
+																									$moisactuel = date('n', time());
+																									if ($moisactuel >= 10) {$i = date('Y', time())+1;}else{$i = date('Y', time());}
+																									while ($i >= date('Y', time()) - 50) {
+																										if (isset($yearfin) && $yearfin == $i) {$txt = "selected";}else{$txt = "";}
+																										echo '<option value='.$i.' '.$txt.'>'.$i.'</option>';
+																										$i--;
+																									}
+																									?>
+																									</select>
+																								</div>
+																								<!--
 																								<div class="col-12 form-inline">
 																										<span class="nameField font-weight-bold">Publication Date :&nbsp;</span>
 																										<label for="anneedeb">From&nbsp;<i>(AAAA)</i>&nbsp;</label>
@@ -807,6 +836,7 @@ if (isset($_POST["soumis"])) {
 																										<label for="anneefin">To&nbsp;<i>(AAAA)</i>&nbsp;</label>
 																										<input type="text" class="form-control" id="anneefin" name="anneefin" value="<?php echo $yearfin;?>">
 																								</div>
+																								-->
 																						</div> <!-- .form-group -->
 																						
 																						<div class="form-group row mb-2">
