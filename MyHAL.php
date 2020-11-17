@@ -848,7 +848,7 @@ if (isset($_POST["soumis"])) {
 																														<i class="mdi mdi-comment-question text-white"></i>
 																														</button>
 																												</div>
-																												<select id="coll" class="form-control" size="1" name="coll" style="padding: 0px;">
+																												<select id="coll" class="custom-select" size="1" name="coll" style="padding: 0px;">
 																														<option value="-">-</option>
 																														<?php
 																														foreach ($CODCOLL_LISTE as $v) {
