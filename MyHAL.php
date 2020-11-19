@@ -683,7 +683,7 @@ if (isset($_POST["soumis"])) {
                                         </h2>
                                         <h5 class="badge badge-primary badge-pill">Outline</h5>
 																				
-																				<img src="./img/elizabeth-jamieson-viaduct-france-unsplash.png" alt="Accueil MyHAL" class="img-fluid"><br>
+																				<img src="./img/elizabeth-jamieson-viaduct-france-unsplash.jpg" alt="Accueil MyHAL" class="img-fluid"><br>
 																				<p class="font-italic">Photo : Viaduct France by Elizabeth Jamieson on Unsplash (détail)</p>
 
                                         <p class=" mb-2 text-justify">
