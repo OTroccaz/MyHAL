@@ -25,8 +25,8 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
 	<meta charset="utf-8" />
 	<title>MyHAL - HAL - UR1</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta content="" name="description" />
-	<meta content="Coderthemes + Lizuka" name="author" />
+	<meta content="MyHAL is a PHP program to help authors check their publication list in HAL" name="description" />
+	<meta content="Coderthemes + Lizuka + OTroccaz + LJonchere" name="author" />
 	<!-- App favicon -->
 	<link rel="shortcut icon" href="favicon.ico">
 
