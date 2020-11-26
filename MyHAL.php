@@ -614,7 +614,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s,proceedings_s &sort=docType_s%20ASC,proceedings_s%20DESC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s,proceedings_s,status_i,doiId_s&sort=docType_s%20ASC,proceedings_s%20DESC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -1041,10 +1041,31 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
 				echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>";
 			}else{
-				if ($entry->docType_s == "ART" ||($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
+				if ($entry->docType_s == "ART" || ($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
 					if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
 					}else{
-						echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' src='./img/add.png'></a>";
+						//Recherche d'une éventuelle notice avec le même DOI ou le même titre dans HAL CRAC > PDF soumis en attente de validation
+						if (isset($entry->doiId_s)) {
+							$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=doiId_s:%22".$entry->doiId_s."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+						}else{
+							$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=title_s:%22".$entry->title_s[0]."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+						}
+						$reqCRAC = str_replace('"', '%22', $reqCRAC);
+						$reqCRAC = str_replace(" ", "%20", $reqCRAC);
+						//echo $reqCRAC;
+						
+						$contCRAC = file_get_contents($reqCRAC);
+						//$contCRAC = utf8_encode($contCRAC);
+						$resCRAC = json_decode($contCRAC);
+						$numFCRAC = 0;
+						if (isset($resCRAC->response->numFound)) {$numFCRAC = $resCRAC->response->numFound;}
+						if ($numFCRAC != 0) {
+							$subDate = "";
+							if (isset($resCRAC->response->docs[0]->submittedDate_s)) {$subDate = "<span class='text-third small'> on ".$resCRAC->response->docs[0]->submittedDate_s."</span>";}
+							echo "&nbsp;<a href='#'><img alt='PDF already submitted to HAL' title='PDF already submitted to HAL' data-toggle=\"popover\" data-trigger='hover' data-content='Waiting to be processed before going online, yet subject to validation by HAL' data-original-title='' src='./img/dep.png'></a>".$subDate;
+						}else{
+							echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' src='./img/add.png'></a>";
+						}
 					}
 				}
 			}
