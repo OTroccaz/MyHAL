@@ -1039,7 +1039,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 			}
 			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $citFull);
 			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
-				echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img src='./img/pdf.png'></a>";
+				echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img style='width: 50px;' src='./img/pdf_grand.png'></a>";
 			}else{
 				if ($entry->docType_s == "ART" || ($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
 					if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
@@ -1062,15 +1062,15 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 						if ($numFCRAC != 0) {
 							$subDate = "";
 							if (isset($resCRAC->response->docs[0]->submittedDate_s)) {$subDate = "<span class='text-third small'> on ".$resCRAC->response->docs[0]->submittedDate_s."</span>";}
-							echo "&nbsp;<a href='#'><img alt='PDF already submitted to HAL' title='PDF already submitted to HAL' data-toggle=\"popover\" data-trigger='hover' data-content='Waiting to be processed before going online, yet subject to validation by HAL' data-original-title='' src='./img/dep.png'></a>".$subDate;
+							echo "&nbsp;<a href='#'><img alt='PDF already submitted to HAL' title='PDF already submitted to HAL' data-toggle=\"popover\" data-trigger='hover' data-content='Waiting to be processed before going online, yet subject to validation by HAL' data-original-title='' style='width: 50px;' src='./img/dep_grand.png'></a>".$subDate;
 						}else{
-							echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' src='./img/add.png'></a>";
+							echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' style='width: 50px;' src='./img/add_grand.png'></a>";
 						}
 					}
 				}
 			}
 			if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
-				echo "&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img src='./img/arxiv.png'></a>";
+				echo "&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img style='width: 50px;' src='./img/arxiv_grand.png'></a>";
 			}
 			echo '<br><br>';
 			$sect->writeText($labelS, $font);
