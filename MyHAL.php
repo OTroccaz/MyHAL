@@ -614,7 +614,7 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s,proceedings_s,status_i,doiId_s&sort=docType_s%20ASC,proceedings_s%20DESC,producedDateY_i%20DESC,auth_sort%20ASC";
+	$reqAPI = "https://api.archives-ouvertes.fr/search/?q=".$atester.$atesteropt.$specificRequestCode."&rows=100000&fl=citationFull_s,label_s,docType_s,title_s,producedDateY_i,collCode_s,files_s,authFullName_s,docid,linkExtId_s,linkExtUrl_s,arxivId_s,proceedings_s,status_i,doiId_s,halId_s,docid&sort=docType_s%20ASC,proceedings_s%20DESC,producedDateY_i%20DESC,auth_sort%20ASC";
 	$reqAPI = str_replace('"', '%22', $reqAPI);
 	$reqAPI = str_replace(" ", "%20", $reqAPI);
 	//echo $reqAPI;
@@ -949,14 +949,35 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 	echo '<div class="col-12">';
 	echo '<div class="card shadow-lg w-100">';
   echo '<div class="card-body">';
-	if ($numFound == 0) {//Y-a-t-il au moins un résultat ?
-		echo 'No result<br>';
-		echo '<span class="text-primary">>>>> Please check if your first and last names are stated correctly, including accents and special characters</span>';
+	if ($numFound == 0) {//Y-a-t-il au moins un résultat ?	
+		echo '<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>';
+		echo '<br><br>No result<br>';
+		echo '<span class="text-primary">>>>> Please check if your first and last names are stated correctly, including accents and special characters</span>';	
 	}else{
+		//Vérification préalable > si 2 liens HAL sont strictement identiques mais avec un docid différent de n'en afficher qu'un seul (avec priorité pour celui qui a un PDF le cas échéant)
+		$tabAff = array();
+		$tabHid = array();
+		$tabFil = array();
+		$tab = 0;
+		foreach($results->response->docs as $entry){
+			if (!in_array($entry->halId_s, $tabHid)) {
+				$tabHid[$tab] = $entry->halId_s;
+				$tabAff[$tab] = "oui";
+				if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {$tabFil[$tab] = "oui";}else{$tabFil[$tab] = "non";}
+			}else{
+				$numFound--;
+				$key = array_search($entry->halId_s, $tabHid);
+				if ($tabFil[$key] == "oui") {$tabAff[$tab] = "non";}else{$tabAff[$key] = "non"; $tabAff[$tab] = "oui";}
+			}
+			$tab++;
+		}
+		
 		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>';
 		echo '<a href="#export">Export list <img src=\'./img/export_list.jpg\'></a>';
 		echo ' / ';
 		echo '<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>';
+		
+		$tab = 0;
 		$i = 1;
 		$docType = $results->response->docs[0]->docType_s;
 		$subType = "";
@@ -975,12 +996,22 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 		echo '<h6><b>'.$year.'</b></h6>';
 		$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 		foreach($results->response->docs as $entry){
-			if ($docType != $entry->docType_s) {//Nouveau type de document
-				$docType = $entry->docType_s;
-				if ($docType != "COMM") {
-					echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
-					$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
-				}else{
+			if ($tabAff[$tab] == "oui") {
+				if ($docType != $entry->docType_s) {//Nouveau type de document
+					$docType = $entry->docType_s;
+					if ($docType != "COMM") {
+						echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
+						$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
+					}else{
+						if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
+						if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
+							$subType = $subTypeN;
+							echo '<br><h4><b>'.$subType.'</b></h4>';
+							$sect->writeText("<br><br>".$subType."<br><br>", $fonth2);
+						}
+					}
+				}
+				if ($docType == "COMM") {
 					if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
 					if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
 						$subType = $subTypeN;
@@ -988,100 +1019,93 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 						$sect->writeText("<br><br>".$subType."<br><br>", $fonth2);
 					}
 				}
-			}
-			if ($docType == "COMM") {
-				if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
-				if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
-					$subType = $subTypeN;
-					echo '<br><h4><b>'.$subType.'</b></h4>';
-					$sect->writeText("<br><br>".$subType."<br><br>", $fonth2);
+				if ($year != $entry->producedDateY_i) {//Année différente
+					$year = $entry->producedDateY_i;
+					echo '<h6><b>'.$year.'</b></h6>';
+					$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 				}
-			}
-			if ($year != $entry->producedDateY_i) {//Année différente
-				$year = $entry->producedDateY_i;
-				echo '<h6><b>'.$year.'</b></h6>';
-				$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
-			}
-			echo $i.". ";
-			$sect->writeText($i.". ", $font);
-			//Codes collection
-			if ($collcodechk == "checked=\"\"" && isset($entry->collCode_s)) {
-				$collCodeList = "";
-				foreach($entry->collCode_s as $collCode){
-					if (array_key_exists($collCode, $CODCOLL_LISTE) && strpos($collCodeList, $collCode) === false) {
-						$collCodeList .= $collCode." - ";
-						echo "<font color=red>".$collCode." - </font>";
-						$sect->writeText($collCode." - ", $font);
+				echo $i.". ";
+				$sect->writeText($i.". ", $font);
+				//Codes collection
+				if ($collcodechk == "checked=\"\"" && isset($entry->collCode_s)) {
+					$collCodeList = "";
+					foreach($entry->collCode_s as $collCode){
+						if (array_key_exists($collCode, $CODCOLL_LISTE) && strpos($collCodeList, $collCode) === false) {
+							$collCodeList .= $collCode." - ";
+							echo "<font color=red>".$collCode." - </font>";
+							$sect->writeText($collCode." - ", $font);
+						}
+					}
+					//HAL collection code
+					if (isset($coll2) && $coll2 != "") {
+						echo "<font color=red>".$coll2." - </font>";
+						$sect->writeText($coll2." - ", $font);
 					}
 				}
-				//HAL collection code
-				if (isset($coll2) && $coll2 != "") {
-					echo "<font color=red>".$coll2." - </font>";
-					$sect->writeText($coll2." - ", $font);
+				
+				$citFull = $entry->citationFull_s;
+				$labelS = $entry->label_s;
+				//Si demandé, afficher la liste complète des auteurs
+				if (!isset($_POST["showfive"])) {
+					$listAut = "";
+					$autEtal = "";
+					$iAut = 0;
+					foreach($entry->authFullName_s as $aut){
+						$iAut++;
+						if ($iAut == 6) {$autEtal = $listAut. 'et al.';}
+						$listAut .= $aut.', ';
+					}
+					$listAut = substr($listAut, 0, (strlen($listAut) - 2));
+					$citFull = str_replace($autEtal, $listAut, $citFull);
+					$labelS = str_replace($autEtal, $listAut, $labelS);
 				}
-			}
-			
-			$citFull = $entry->citationFull_s;
-			$labelS = $entry->label_s;
-			//Si demandé, afficher la liste complète des auteurs
-			if (!isset($_POST["showfive"])) {
-				$listAut = "";
-				$autEtal = "";
-				$iAut = 0;
-				foreach($entry->authFullName_s as $aut){
-					$iAut++;
-					if ($iAut == 6) {$autEtal = $listAut. 'et al.';}
-					$listAut .= $aut.', ';
-				}
-				$listAut = substr($listAut, 0, (strlen($listAut) - 2));
-				$citFull = str_replace($autEtal, $listAut, $citFull);
-				$labelS = str_replace($autEtal, $listAut, $labelS);
-			}
-			echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $citFull);
-			if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
-				echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img style='width: 50px;' src='./img/pdf_grand.png'></a>";
-			}else{
-				if ($entry->docType_s == "ART" || ($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
-					if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
-					}else{
-						//Recherche d'une éventuelle notice avec le même DOI ou le même titre dans HAL CRAC > PDF soumis en attente de validation
-						if (isset($entry->doiId_s)) {
-							$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=doiId_s:%22".$entry->doiId_s."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+				echo str_replace($entry->title_s[0], "<font color=red>".$entry->title_s[0]."</font>", $citFull);
+				if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
+					echo "&nbsp;<a target='_blank' href='".$entry->files_s[0]."'><img style='width: 50px;' src='./img/pdf_grand.png'></a>";
+				}else{
+					if ($entry->docType_s == "ART" || ($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
+						if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
 						}else{
-							$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=title_s:%22".$entry->title_s[0]."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
-						}
-						$reqCRAC = str_replace('"', '%22', $reqCRAC);
-						$reqCRAC = str_replace(" ", "%20", $reqCRAC);
-						//echo $reqCRAC;
-						
-						$contCRAC = file_get_contents($reqCRAC);
-						//$contCRAC = utf8_encode($contCRAC);
-						$resCRAC = json_decode($contCRAC);
-						$numFCRAC = 0;
-						if (isset($resCRAC->response->numFound)) {$numFCRAC = $resCRAC->response->numFound;}
-						if ($numFCRAC != 0) {
-							$subDate = "";
-							if (isset($resCRAC->response->docs[0]->submittedDate_s)) {$subDate = "<span class='text-third small'> on ".$resCRAC->response->docs[0]->submittedDate_s."</span>";}
-							echo "&nbsp;<a href='#'><img alt='PDF already submitted to HAL' title='PDF already submitted to HAL' data-toggle=\"popover\" data-trigger='hover' data-content='Waiting to be processed before going online, yet subject to validation by HAL' data-original-title='' style='width: 50px;' src='./img/dep_grand.png'></a>".$subDate;
-						}else{
-							echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' style='width: 50px;' src='./img/add_grand.png'></a>";
+							//Recherche d'une éventuelle notice avec le même DOI ou le même titre dans HAL CRAC > PDF soumis en attente de validation
+							if (isset($entry->doiId_s)) {
+								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=doiId_s:%22".$entry->doiId_s."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+							}else{
+								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=title_s:%22".$entry->title_s[0]."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+							}
+							$reqCRAC = str_replace('"', '%22', $reqCRAC);
+							$reqCRAC = str_replace(" ", "%20", $reqCRAC);
+							//echo $reqCRAC;
+							
+							$contCRAC = file_get_contents($reqCRAC);
+							//$contCRAC = utf8_encode($contCRAC);
+							$resCRAC = json_decode($contCRAC);
+							$numFCRAC = 0;
+							if (isset($resCRAC->response->numFound)) {$numFCRAC = $resCRAC->response->numFound;}
+							if ($numFCRAC != 0) {
+								$subDate = "";
+								if (isset($resCRAC->response->docs[0]->submittedDate_s)) {$subDate = "<span class='text-third small'> on ".$resCRAC->response->docs[0]->submittedDate_s."</span>";}
+								echo "&nbsp;<a href='#'><img alt='PDF already submitted to HAL' title='PDF already submitted to HAL' data-toggle=\"popover\" data-trigger='hover' data-content='Waiting to be processed before going online, yet subject to validation by HAL' data-original-title='' style='width: 50px;' src='./img/dep_grand.png'></a>".$subDate;
+							}else{
+								echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' style='width: 50px;' src='./img/add_grand.png'></a>";
+							}
 						}
 					}
 				}
+				if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
+					echo "&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img style='width: 50px;' src='./img/arxiv_grand.png'></a>";
+				}
+				echo '<br><br>';
+				$sect->writeText($labelS, $font);
+				$sect->writeText("<br><br>", $font);
+				$i++;
 			}
-			if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
-				echo "&nbsp;<a target='_blank' href='".$entry->linkExtUrl_s."'><img style='width: 50px;' src='./img/arxiv_grand.png'></a>";
-			}
-			echo '<br><br>';
-			$sect->writeText($labelS, $font);
-			$sect->writeText("<br><br>", $font);
-			$i++;
+			$tab++;
 		}
 		$rtfic->save($Fnm);
 		echo '<center><b><a name="export" class="btn btn-secondary mt-2" href="'.$Fnm.'">Export to RTF (Word / LibreOffice)</a></b></center>';
 		echo '<br>';
-		echo '</div> <!-- end card-body--> </div> <!-- end card--> </div> <!-- end col --> </div> <!-- end row --></div> </div>  <!-- end container -->';
 	}
+	echo '</div> <!-- end card-body--> </div> <!-- end card--> </div> <!-- end col --> </div> <!-- end row --></div> </div>  <!-- end container -->';
 }
 ?>
 								
