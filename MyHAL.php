@@ -44,7 +44,7 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
 	<script src="./assets/js/app.min.js"></script>
 
 	<!-- third party js -->
-	<script src="./assets/js/vendor/Chart.bundle.min.js"></script>
+	<!-- <script src="./assets/js/vendor/Chart.bundle.min.js"></script> -->
 	<!-- third party js ends -->
 	<script src="./assets/js/pages/hal-ur1.chartjs.js"></script>
 	
@@ -954,7 +954,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 		echo '<br><br>No result<br>';
 		echo '<span class="text-primary">>>>> Please check if your first and last names are stated correctly, including accents and special characters</span>';	
 	}else{
-		//Vérification préalable > si 2 liens HAL sont strictement identiques mais avec un docid différent de n'en afficher qu'un seul (avec priorité pour celui qui a un PDF le cas échéant)
+		//Vérification préalable > Si 2 notices ont des liens HAL identiques, n'en afficher qu'une seule (avec priorité pour celle qui a un PDF le cas échéant)
 		$tabAff = array();
 		$tabHid = array();
 		$tabFil = array();
@@ -1133,7 +1133,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 				<script src="./assets/js/app.min.js"></script>
 
 				<!-- third party js -->
-				<script src="./assets/js/vendor/Chart.bundle.min.js"></script>
+				<!-- <script src="./assets/js/vendor/Chart.bundle.min.js"></script> -->
 				<!-- third party js ends -->
 				<script src="./assets/js/pages/hal-ur1.chartjs.js"></script>
 				
