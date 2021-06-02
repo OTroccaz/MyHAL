@@ -44,6 +44,7 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
 	<script src="./assets/js/app.min.js"></script>
 
 	<!-- third party js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 	<!-- <script src="./assets/js/vendor/Chart.bundle.min.js"></script> -->
 	<!-- third party js ends -->
 	<script src="./assets/js/pages/hal-ur1.chartjs.js"></script>
