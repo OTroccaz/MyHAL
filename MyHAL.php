@@ -760,7 +760,7 @@ if (isset($_POST["soumis"])) {
 																																		<div class="input-group">
 																																				<div class="input-group-prepend">
 																																						<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='eg. Maiden or hyphenated name' data-original-title="" data-placement="top">
-																																						<i class="mdi mdi-comment-question text-white"></i>
+																																						<i class="mdi mdi-help text-white"></i>
 																																						</button>
 																																				</div>
 																																<input type="text" id="altaut" name="altaut" class="form-control" value="<?php echo $altaut;?>" onkeydown="document.getElementById('idhal').value = '';">
@@ -788,7 +788,7 @@ if (isset($_POST["soumis"])) {
 																												<div class="input-group">
 																														<div class="input-group-prepend">
 																																<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='HAL personal identifier. (eg. olivier-troccaz)' data-original-title="" data-placement="top">
-																																<i class="mdi mdi-comment-question text-white"></i>
+																																<i class="mdi mdi-help text-white"></i>
 																																</button>
 																														</div>
 																														<input type="text" id="idhal" name="idhal" class="form-control"  value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = '';">
@@ -846,7 +846,7 @@ if (isset($_POST["soumis"])) {
 																										<div class="input-group">
 																												<div class="input-group-prepend">
 																														<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='Optional but may be useful if you have namesakes (homonymes)' data-original-title="" data-placement="top">
-																														<i class="mdi mdi-comment-question text-white"></i>
+																														<i class="mdi mdi-help text-white"></i>
 																														</button>
 																												</div>
 																												<select id="coll" class="custom-select" size="1" name="coll" style="padding: 0px;">
@@ -877,7 +877,7 @@ if (isset($_POST["soumis"])) {
 																										Check if your papers are included in your lab Hceres list
 																										</label>
 																										<button type="button" tabindex="0" class="btn btn-info btn-sm" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list' data-original-title="" data-placement="top">
-																														<i class="mdi mdi-comment-question text-white"></i>
+																														<i class="mdi mdi-help text-white"></i>
 																										</button>
 																									</div>
 																								</div>
