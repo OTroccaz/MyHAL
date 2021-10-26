@@ -973,7 +973,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 			$tab++;
 		}
 		
-		echo '<div class="alert alert-warning bg-warning text-white border-0" role="alert"><strong><i class="mdi mdi-exclamation-thick"></i>Be sure to be <a target="_blank" rel="noopener noreferrer" href="https://hal.archives-ouvertes.fr/">logged in HAL</a> before adding files (ADD button) / Vous devez d\'abord être <a target="_blank" rel="noopener noreferrer" href="https://hal.archives-ouvertes.fr/">connecté à HAL</a> pour ajouter des fichiers (bouton ADD)</strong></div>';
+		echo '<div class="alert alert-warning" role="alert"><strong><i class="mdi mdi-exclamation-thick"></i>Be sure to be <a target="_blank" rel="noopener noreferrer" href="https://hal.archives-ouvertes.fr/">logged in HAL</a> before adding files (ADD button) / Vous devez d\'abord être <a target="_blank" rel="noopener noreferrer" href="https://hal.archives-ouvertes.fr/">connecté à HAL</a> pour ajouter des fichiers (bouton ADD)</strong></div>';
 
 		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>';
 		echo '<a href="#export">Export list <img src=\'./img/export_list.jpg\'></a>';
