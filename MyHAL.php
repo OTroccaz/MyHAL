@@ -706,6 +706,9 @@ if (isset($_POST["soumis"])) {
                                                 <li class="list-group-item">
                                                     <a target="_blank" rel="noopener noreferrer" href="https://scienceouverte.univ-rennes1.fr/votre-bilan-crac-ribac">Your CRAC / RIBAC</a>
                                                 </li>
+																								<li class="list-group-item">
+																										<a href="MyHAL_Tutorial.pdf"><i class="mdi mdi-file-pdf-box-outline mr-1"></i> MyHAL Tutorial</a>
+																								</li>
                                             </ul> 
                                         </div>
                                     </div>
