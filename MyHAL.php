@@ -219,10 +219,10 @@ $showfivechk = "checked=\"\"";
 
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
-	$preaut = ucwords(htmlspecialchars(mb_strtolower($_POST["preaut"], 'UTF-8')));
-	$midaut = ucwords(htmlspecialchars(mb_strtolower($_POST["midaut"], 'UTF-8')));
-	$nomaut = ucwords(htmlspecialchars(mb_strtolower($_POST["nomaut"], 'UTF-8')));
-	$altaut = ucwords(htmlspecialchars(mb_strtolower($_POST["altaut"], 'UTF-8')));
+	$preaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["preaut"], 'UTF-8'))));
+	$midaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["midaut"], 'UTF-8'))));
+	$nomaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["nomaut"], 'UTF-8'))));
+	$altaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["altaut"], 'UTF-8'))));
 	if (strpos($nomaut, "-") !== false) {
 		$tabnom = explode("-", $nomaut);
 		$nomaut = ucfirst($tabnom[0])."-".ucfirst($tabnom[1]);
@@ -738,14 +738,14 @@ if (isset($_POST["soumis"])) {
 																														<div class="col-md-6 form-inline">
 																																<label for="preaut" class="d-block mr-2 w-30 font-weight-bold">First name : 
 																																		</label>
-																																<input type="text" id="preaut" name="preaut" class="form-control" value="<?php echo $preaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="preaut" name="preaut" class="form-control" value="<?php echo rawurldecode($preaut);?>" onkeydown="document.getElementById('idhal').value = '';">
 																																<br><br> <span class="small text-primary">(including accents and special characters!)</span>
 																														</div>
 																														<div class="col-md-6 form-inline">
 																																<label for="midaut" class="d-block mr-2 w-30 font-weight-bold">Middle name : 
 																																		<br> <span class="small text-info">Optional</span>
 																																		</label>
-																																<input type="text" id="midaut" name="midaut" class="form-control" value="<?php echo $midaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="midaut" name="midaut" class="form-control" value="<?php echo rawurldecode($midaut);?>" onkeydown="document.getElementById('idhal').value = '';">
 																														</div>
 																												</div>
 
@@ -753,7 +753,7 @@ if (isset($_POST["soumis"])) {
 																														<div class="col-md-6 form-inline">
 																																<label for="nomaut" class="d-block mr-2 w-30 font-weight-bold">Last name : 
 																																		</label>
-																																<input type="text" id="nomaut" name="nomaut" class="form-control" value="<?php echo $nomaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="nomaut" name="nomaut" class="form-control" value="<?php echo rawurldecode($nomaut);?>" onkeydown="document.getElementById('idhal').value = '';">
 																																<br><br> <span class="small text-primary">(including accents and special characters!)</span>
 																														</div>
 																														<div class="col-md-6 form-inline">
@@ -766,7 +766,7 @@ if (isset($_POST["soumis"])) {
 																																						<i class="mdi mdi-help text-white"></i>
 																																						</button>
 																																				</div>
-																																<input type="text" id="altaut" name="altaut" class="form-control" value="<?php echo $altaut;?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="altaut" name="altaut" class="form-control" value="<?php echo rawurldecode($altaut);?>" onkeydown="document.getElementById('idhal').value = '';">
 																														</div>
 																																
 																														</div>
