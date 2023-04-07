@@ -688,7 +688,7 @@ if (isset($_POST["soumis"])) {
 																				<p class="font-italic">Photo : Viaduct France by Elizabeth Jamieson on Unsplash (détail)</p>
 
                                         <p class=" mb-2 text-justify">
-                                           MyHAL is a PHP program to help authors check their publication list in HAL, made by by Olivier Troccaz (design & coding) and Laurent Jonchère (design). If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/olivier-troccaz">Olivier Troccaz</a>.
+                                           MyHAL is a PHP program to help authors check their publication list in HAL, made by by Olivier Troccaz (design & coding) and Laurent Jonchère (design). If you need help, please contact <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/laurent-jonchere">Laurent Jonchère</a> or <a target="_blank" href="https://openaccess.univ-rennes1.fr/interlocuteurs/olivier-troccaz">Olivier Troccaz</a>. Its code is available <a target='_blank' rel='noopener noreferrer' href="https://github.com/OTroccaz/MyHAL">on GitHub</a> under the <a target='_blank' rel='noopener noreferrer' href="https://www.gnu.org/licenses/gpl-3.0.fr.html">GPLv3</a> license.
                                         </p>
 
 
