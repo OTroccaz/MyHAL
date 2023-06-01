@@ -1,4 +1,13 @@
 <?php
+/*
+ * MyHAL - Vérifiez votre liste de publications - Check your paper list
+ *
+ * Copyright (C) 2023 Olivier Troccaz (olivier.troccaz@cnrs.fr) and Laurent Jonchère (laurent.jonchere@univ-rennes.fr)
+ * Released under the terms and conditions of the GNU General Public License (https://www.gnu.org/licenses/gpl-3.0.txt)
+ *
+ * Liste des 'correspondances codes collection <> noms des unités' - List of 'correspondence between collection codes <> unit names'.
+ */
+ 
 //liste des 'correspondances codes collection <> noms des unités'
 $CODCOLL_LISTE = array(
 "CRAPE" =>"ARENES - Centre de recherches sur l'action politique en Europe (ARENES)",
