@@ -206,6 +206,7 @@ function wd_remove_accents($str, $charset='utf-8')
 
 //Initialisation des variables
 $idhal = "";
+$teamcode = "";
 $preaut = "";//Prénom auteur
 $midaut = "";//"Middle name" auteur
 $nomaut = "";//Nom auteur
@@ -228,6 +229,7 @@ $showfivechk = "checked=\"\"";
 
 if (isset($_POST["soumis"])) {
   $idhal = htmlspecialchars($_POST["idhal"]);
+	$teamcode = strtoupper(htmlspecialchars($_POST["teamcode"]));
 	$preaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["preaut"], 'UTF-8'))));
 	$midaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["midaut"], 'UTF-8'))));
 	$nomaut = rawurlencode(ucwords(htmlspecialchars(mb_strtolower($_POST["nomaut"], 'UTF-8'))));
@@ -301,314 +303,318 @@ if (isset($_POST["soumis"])) {
   $anneefiniso = $tabanneefin[2].'-'.$tabanneefin[1].'-'.$tabanneefin[0].'T00:00:00Z';
   $specificRequestCode = '%20AND%20producedDate_tdate:['.$anneedebiso.'%20TO%20'.$anneefiniso.']';
 	
-	//IdHAL ou auteur ?
+	//IdHAL, teamcode ou auteur ?
 	if (isset($idhal) && $idhal != "") {
 		 $atester = "authIdHal_s:".$idhal;
 	}else{
-		//auteur_exp=soizic chevance,s chevance,s. chevance,sm chevance,s.m. chevance
-		$atester = "(";
-		
-		$atester .= "authFullName_t:\"".$preaut." ".$nomaut."\"%20OR%20";
-		$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$nomaut."\"%20OR%20";
-		$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$nomaut."\"%20OR%20";
-		if ($midaut != "") {
-			$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$nomaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
-		}
-		//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-		if (strpos($nomaut, " ") !== false) {
-			$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+		if (isset($teamcode) && $teamcode != "") {
+			$atester = "collCode_s:".$teamcode;
+		}else{
+			//auteur_exp=soizic chevance,s chevance,s. chevance,sm chevance,s.m. chevance
+			$atester = "(";
+			
+			$atester .= "authFullName_t:\"".$preaut." ".$nomaut."\"%20OR%20";
+			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$nomaut."\"%20OR%20";
+			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$nomaut."\"%20OR%20";
 			if ($midaut != "") {
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			}
-		}
-		//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-		if (strpos($nomaut, "-") !== false) {
-			$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			if ($midaut != "") {
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			}
-		}
-
-		//Réitérer les tests avec prénoms 'nettoyés' des caractères accentués
-		$preautnet = wd_remove_accents($preaut);
-		$midautnet = wd_remove_accents($midaut);
-		
-		$atester .= "authFullName_t:\"".$preautnet." ".$nomaut."\"%20OR%20";
-		$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$nomaut."\"%20OR%20";
-		$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$nomaut."\"%20OR%20";
-		if ($midautnet != "") {
-			$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$nomaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$nomaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$nomaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$nomaut."\"%20OR%20";
-		}
-		//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-		if (strpos($nomaut, " ") !== false) {
-			$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
-			}
-		}
-		//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-		if (strpos($nomaut, "-") !== false) {
-			$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
-			}
-		}
-		
-		//Réitérer les tests avec nom 'nettoyé' des caractères accentués
-		$nomautnet = wd_remove_accents($nomaut);
-		
-		$atester .= "authFullName_t:\"".$preaut." ".$nomautnet."\"%20OR%20";
-		$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$nomautnet."\"%20OR%20";
-		$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$nomautnet."\"%20OR%20";
-		if ($midautnet != "") {
-			$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$nomautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$nomautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$nomautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".$nomautnet."\"%20OR%20";
-		}
-		//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-		if (strpos($nomautnet, " ") !== false) {
-			$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			}
-		}
-		//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-		if (strpos($nomautnet, "-") !== false) {
-			$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			}
-		}
-		
-		//Réitérer les tests avec prénoms et nom 'nettoyés' des caractères accentués
-		$preautnet = wd_remove_accents($preaut);
-		$midautnet = wd_remove_accents($midaut);
-		$nomautnet = wd_remove_accents($nomaut);
-		
-		$atester .= "authFullName_t:\"".$preautnet." ".$nomautnet."\"%20OR%20";
-		$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$nomautnet."\"%20OR%20";
-		$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$nomautnet."\"%20OR%20";
-		if ($midautnet != "") {
-			$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
-		}
-		//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-		if (strpos($nomautnet, " ") !== false) {
-			$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
-			}
-		}
-		//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-		if (strpos($nomautnet, "-") !== false) {
-			$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
-			}
-		}
-		
-		//Réitérer si présence d'un nom alternatif
-		if (isset($altaut) && $altaut != "") {
-			$atester .= "authFullName_t:\"".$preaut." ".$altaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$altaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$altaut."\"%20OR%20";
-			if ($midaut != "") {
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$altaut."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$nomaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".$nomaut."\"%20OR%20";
 			}
 			//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-			if (strpos($altaut, " ") !== false) {
-				$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+			if (strpos($nomaut, " ") !== false) {
+				$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
 				if ($midaut != "") {
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
 				}
 			}
 			//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-			if (strpos($altaut, "-") !== false) {
-				$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+			if (strpos($nomaut, "-") !== false) {
+				$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
 				if ($midaut != "") {
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
 				}
 			}
-			
+
 			//Réitérer les tests avec prénoms 'nettoyés' des caractères accentués
 			$preautnet = wd_remove_accents($preaut);
 			$midautnet = wd_remove_accents($midaut);
 			
-			$atester .= "authFullName_t:\"".$preautnet." ".$altaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$altaut."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$altaut."\"%20OR%20";
+			$atester .= "authFullName_t:\"".$preautnet." ".$nomaut."\"%20OR%20";
+			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$nomaut."\"%20OR%20";
+			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$nomaut."\"%20OR%20";
 			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$altaut."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$altaut."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$altaut."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$nomaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$nomaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$nomaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$nomaut."\"%20OR%20";
 			}
 			//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-			if (strpos($altaut, " ") !== false) {
-				$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+			if (strpos($nomaut, " ") !== false) {
+				$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
 				if ($midautnet != "") {
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomaut)."\"%20OR%20";
 				}
 			}
 			//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-			if (strpos($altaut, "-") !== false) {
-				$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+			if (strpos($nomaut, "-") !== false) {
+				$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
 				if ($midautnet != "") {
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomaut))."\"%20OR%20";
 				}
 			}
 			
 			//Réitérer les tests avec nom 'nettoyé' des caractères accentués
-			$altautnet = wd_remove_accents($altaut);
+			$nomautnet = wd_remove_accents($nomaut);
 			
-			$atester .= "authFullName_t:\"".$preaut." ".$altautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$altautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$altautnet."\"%20OR%20";
+			$atester .= "authFullName_t:\"".$preaut." ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$nomautnet."\"%20OR%20";
 			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$altautnet."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$altautnet."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$altautnet."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$nomautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$nomautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$nomautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".$nomautnet."\"%20OR%20";
 			}
 			//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-			if (strpos($altautnet, " ") !== false) {
-				$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+			if (strpos($nomautnet, " ") !== false) {
+				$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
 				if ($midautnet != "") {
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
 				}
 			}
 			//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-			if (strpos($altautnet, "-") !== false) {
-				$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+			if (strpos($nomautnet, "-") !== false) {
+				$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
 				if ($midautnet != "") {
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
 				}
 			}
-
-			//Réitérer les tests avec prénom et nom 'nettoyés' des caractères accentués
+			
+			//Réitérer les tests avec prénoms et nom 'nettoyés' des caractères accentués
 			$preautnet = wd_remove_accents($preaut);
 			$midautnet = wd_remove_accents($midaut);
-			$altautnet = wd_remove_accents($altaut);
+			$nomautnet = wd_remove_accents($nomaut);
 			
-			$atester .= "authFullName_t:\"".$preautnet." ".$altautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$altautnet."\"%20OR%20";
-			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$altautnet."\"%20OR%20";
+			$atester .= "authFullName_t:\"".$preautnet." ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$nomautnet."\"%20OR%20";
+			$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$nomautnet."\"%20OR%20";
 			if ($midautnet != "") {
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$altautnet."\"%20OR%20";
-				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$altautnet."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$altautnet."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$nomautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$nomautnet."\"%20OR%20";
 			}
 			//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
-			if (strpos($altautnet, " ") !== false) {
-				$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+			if (strpos($nomautnet, " ") !== false) {
+				$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
 				if ($midautnet != "") {
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $nomautnet)."\"%20OR%20";
 				}
 			}
 			//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
-			if (strpos($altautnet, "-") !== false) {
-				$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+			if (strpos($nomautnet, "-") !== false) {
+				$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
 				if ($midautnet != "") {
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
-					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $nomautnet))."\"%20OR%20";
 				}
 			}
+			
+			//Réitérer si présence d'un nom alternatif
+			if (isset($altaut) && $altaut != "") {
+				$atester .= "authFullName_t:\"".$preaut." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$altaut."\"%20OR%20";
+				if ($midaut != "") {
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$altaut."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".$altaut."\"%20OR%20";
+				}
+				//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+				if (strpos($altaut, " ") !== false) {
+					$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					if ($midaut != "") {
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					}
+				}
+				//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
+				if (strpos($altaut, "-") !== false) {
+					$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					if ($midaut != "") {
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					}
+				}
+				
+				//Réitérer les tests avec prénoms 'nettoyés' des caractères accentués
+				$preautnet = wd_remove_accents($preaut);
+				$midautnet = wd_remove_accents($midaut);
+				
+				$atester .= "authFullName_t:\"".$preautnet." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$altaut."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$altaut."\"%20OR%20";
+				if ($midautnet != "") {
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$altaut."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$altaut."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$altaut."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$altaut."\"%20OR%20";
+				}
+				//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+				if (strpos($altaut, " ") !== false) {
+					$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					if ($midautnet != "") {
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altaut)."\"%20OR%20";
+					}
+				}
+				//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
+				if (strpos($altaut, "-") !== false) {
+					$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					if ($midautnet != "") {
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altaut))."\"%20OR%20";
+					}
+				}
+				
+				//Réitérer les tests avec nom 'nettoyé' des caractères accentués
+				$altautnet = wd_remove_accents($altaut);
+				
+				$atester .= "authFullName_t:\"".$preaut." ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".$altautnet."\"%20OR%20";
+				if ($midautnet != "") {
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".$altautnet."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".$altautnet."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".$altautnet."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".$altautnet."\"%20OR%20";
+				}
+				//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+				if (strpos($altautnet, " ") !== false) {
+					$atester .= "authFullName_t:\"".$preaut." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					if ($midautnet != "") {
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					}
+				}
+				//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
+				if (strpos($altautnet, "-") !== false) {
+					$atester .= "authFullName_t:\"".$preaut." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut))." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preaut)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					if ($midautnet != "") {
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preaut." ".substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preaut)).substr($midaut, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preaut).substr($midaut, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					}
+				}
+
+				//Réitérer les tests avec prénom et nom 'nettoyés' des caractères accentués
+				$preautnet = wd_remove_accents($preaut);
+				$midautnet = wd_remove_accents($midaut);
+				$altautnet = wd_remove_accents($altaut);
+				
+				$atester .= "authFullName_t:\"".$preautnet." ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".$altautnet."\"%20OR%20";
+				$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".$altautnet."\"%20OR%20";
+				if ($midautnet != "") {
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".$altautnet."\"%20OR%20";
+					$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".$altautnet."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".$altautnet."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".$altautnet."\"%20OR%20";
+				}
+				//Si présence d'espaces dans le nom, tester aussi en les remplaçant par des tirets
+				if (strpos($altautnet, " ") !== false) {
+					$atester .= "authFullName_t:\"".$preautnet." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					if ($midautnet != "") {
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".str_replace(" ", "-", $altautnet)."\"%20OR%20";
+					}
+				}
+				//Si présence de tirets dans le nom, tester aussi en les remplaçant par des espaces
+				if (strpos($altautnet, "-") !== false) {
+					$atester .= "authFullName_t:\"".$preautnet." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet))." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					$atester .= "authFullName_t:\"".prenomCompInit($preautnet)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					if ($midautnet != "") {
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".$preautnet." ".substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".str_replace(".", "", prenomCompInit($preautnet)).substr($midautnet, 0, 1)." ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+						$atester .= "authFullName_t:\"".prenomCompInit($preautnet).substr($midautnet, 0, 1).". ".ucwords(str_replace("-", " ", $altautnet))."\"%20OR%20";
+					}
+				}
+			}
+			
+			$atester = substr($atester, 0, (strlen($atester) - 8));
+			$atester .= ")";
 		}
-		
-		$atester = substr($atester, 0, (strlen($atester) - 8));
-		$atester .= ")";
 	}
 	
 	//Collection
@@ -747,14 +753,14 @@ if (isset($_POST["soumis"])) {
 																														<div class="col-md-6 form-inline">
 																																<label for="preaut" class="d-block mr-2 w-30 font-weight-bold">First name : 
 																																		</label>
-																																<input type="text" id="preaut" name="preaut" class="form-control" value="<?php echo rawurldecode($preaut);?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="preaut" name="preaut" class="form-control" value="<?php echo rawurldecode($preaut);?>" onkeydown="document.getElementById('idhal').value = ''; document.getElementById('teamcode').value = '';">
 																																<br><br> <span class="small text-primary">(including accents and special characters!)</span>
 																														</div>
 																														<div class="col-md-6 form-inline">
 																																<label for="midaut" class="d-block mr-2 w-30 font-weight-bold">Middle name : 
 																																		<br> <span class="small text-info">Optional</span>
 																																		</label>
-																																<input type="text" id="midaut" name="midaut" class="form-control" value="<?php echo rawurldecode($midaut);?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="midaut" name="midaut" class="form-control" value="<?php echo rawurldecode($midaut);?>" onkeydown="document.getElementById('idhal').value = ''; document.getElementById('teamcode').value = '';">
 																														</div>
 																												</div>
 
@@ -762,7 +768,7 @@ if (isset($_POST["soumis"])) {
 																														<div class="col-md-6 form-inline">
 																																<label for="nomaut" class="d-block mr-2 w-30 font-weight-bold">Last name : 
 																																		</label>
-																																<input type="text" id="nomaut" name="nomaut" class="form-control" value="<?php echo rawurldecode($nomaut);?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="nomaut" name="nomaut" class="form-control" value="<?php echo rawurldecode($nomaut);?>" onkeydown="document.getElementById('idhal').value = ''; document.getElementById('teamcode').value = '';">
 																																<br><br> <span class="small text-primary">(including accents and special characters!)</span>
 																														</div>
 																														<div class="col-md-6 form-inline">
@@ -775,7 +781,7 @@ if (isset($_POST["soumis"])) {
 																																						<i class="mdi mdi-help text-white"></i>
 																																						</button>
 																																				</div>
-																																<input type="text" id="altaut" name="altaut" class="form-control" value="<?php echo rawurldecode($altaut);?>" onkeydown="document.getElementById('idhal').value = '';">
+																																<input type="text" id="altaut" name="altaut" class="form-control" value="<?php echo rawurldecode($altaut);?>" onkeydown="document.getElementById('idhal').value = ''; document.getElementById('teamcode').value = '';">
 																														</div>
 																																
 																														</div>
@@ -803,12 +809,29 @@ if (isset($_POST["soumis"])) {
 																																<i class="mdi mdi-help text-white"></i>
 																																</button>
 																														</div>
-																														<input type="text" id="idhal" name="idhal" class="form-control"  value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = '';">
+																														<input type="text" id="idhal" name="idhal" class="form-control"  value="<?php echo $idhal;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = ''; document.getElementById('teamcode').value = '';">
 																												<a class="ml-2 small" target="_blank" rel="noopener noreferrer" href="#1">Create your IdHAL</a>
 																												</div>
-
-																												
 																										</div>
+																								</div>
+																								
+																								<div class="form-group row mb-1">
+																										<div class="col-12">
+																												<h3 class="d-inline-block border-bottom border-primary text-primary">OR</h3>
+																										</div>
+																								</div> <!-- .form-group -->
+																								
+																								<div class="form-group row mb-2">
+																										<label for="teamcode" class="col-12 col-md-2 col-form-label font-weight-bold">
+																										Your team code (optionnal):
+																										</label>
+																										
+																										<div class="col-6 col-md-10">
+																												<div class="input-group">
+																														<input type="text" id="teamcode" name="teamcode" class="form-control"  value="<?php echo $teamcode;?>" onkeydown="document.getElementById('nomaut').value = ''; document.getElementById('midaut').value = ''; document.getElementById('preaut').value = ''; document.getElementById('altaut').value = ''; document.getElementById('idhal').value = '';">
+																												</div>
+																										</div>
+																										
 																								</div> <!-- .form-group -->
 																						</div> <!-- .form-group -->		
 																						
@@ -928,7 +951,7 @@ if (isset($_POST["soumis"])) {
 
 <?php
 $test = "non";
-if (isset($_POST["soumis"]) && (($_POST["preaut"] == "" || $_POST["nomaut"] == "") && $_POST["idhal"] == "")) {
+if (isset($_POST["soumis"]) && (($_POST["preaut"] == "" || $_POST["nomaut"] == "") && $_POST["idhal"] == "" && $_POST["teamcode"] == "")) {
 	echo '<div id="warning-alert-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">';
 		echo '<div class="modal-dialog modal-md modal-center">';
 				echo '<div class="modal-content">';
@@ -936,7 +959,7 @@ if (isset($_POST["soumis"]) && (($_POST["preaut"] == "" || $_POST["nomaut"] == "
 								echo '<div class="text-center">';
 										echo '<i class="dripicons-warning h1 text-warning"></i>';
 										echo '<h4 class="mt-2">Warning</h4>';
-										echo '<p class="mt-3"><strong>Name or idHAL missing!!!<br>Please fill in your First and Last names or your idHAL!</strong></p>';
+										echo '<p class="mt-3"><strong>Name, team code or idHAL missing!!!<br>Please fill in your First and Last names or your team code or your idHAL!</strong></p>';
 										echo '<button type="button" class="btn btn-warning my-2" data-dismiss="modal">Continuer</button>';
 								echo '</div>';
 						echo '</div>';
