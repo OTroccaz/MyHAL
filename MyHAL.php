@@ -1108,7 +1108,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 							if (isset($entry->doiId_s)) {
 								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=doiId_s:%22".$entry->doiId_s."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
 							}else{
-								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=title_s:%22".$entry->title_s[0]."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=title_s:%22".rawurlencode($entry->title_s[0])."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
 							}
 							$reqCRAC = str_replace('"', '%22', $reqCRAC);
 							$reqCRAC = str_replace(" ", "%20", $reqCRAC);
