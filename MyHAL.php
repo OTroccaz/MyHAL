@@ -8,6 +8,16 @@
  * Page d'accueil - Home page
  */
  
+//authentification CAS ou autre ?
+if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false) {
+  include('./_connexion.php');
+}else{
+  require_once('./CAS_connect.php');
+	$HAL_USER = phpCAS::getUser();
+	$HAL_QUOI = "OverHAL";
+	if($HAL_USER != "jonchere" && $HAL_USER != "otroccaz") {include('./Stats_listes_HALUR1.php');}
+}
+
 //Nettoyage URL
 $redir = "non";
 $root = 'http';
@@ -675,6 +685,7 @@ if (isset($_POST["soumis"])) {
                                     <div class="page-title-right">
                                         <nav aria-label="breadcrumb">
                                             <ol class="breadcrumb bg-light-lighten p-2">
+																								<li><a href="https://halur1.univ-rennes1.fr/MyHAL.php?logout="><i class="uil-power"></i> Déconnexion CAS CCSD</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
                                                 <li class="breadcrumb-item"><a href="index.php"><i class="uil-home-alt"></i> Accueil HALUR</a></li>
                                                 <li class="breadcrumb-item active" aria-current="page">My<span class="font-weight-bold">HAL</span></li>
                                             </ol>
