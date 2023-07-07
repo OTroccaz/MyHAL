@@ -1135,7 +1135,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 								if (isset($resCRAC->response->docs[0]->submittedDate_s)) {$subDate = "<span class='text-third small'> on ".$resCRAC->response->docs[0]->submittedDate_s."</span>";}
 								echo "&nbsp;<a href='#'><img alt='PDF already submitted to HAL' title='PDF already submitted to HAL' data-toggle=\"popover\" data-trigger='hover' data-content='Waiting to be processed before going online, yet subject to validation by HAL' data-original-title='' style='width: 50px;' src='./img/dep_grand.png'></a>".$subDate;
 							}else{
-								echo "&nbsp;<a target='_blank' href='https://hal-univ-rennes1.archives-ouvertes.fr/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' style='width: 50px;' src='./img/add_grand.png'></a>";
+								echo "&nbsp;<a target='_blank' href='https://univ-rennes.hal.science/submit/addfile/docid/".$entry->docid."'><img alt='Add paper' title='Add paper' data-toggle=\"popover\" data-trigger='hover' data-content='Important! DO NOT add the DOI number under \"Chargez les métadonnées à partir d&apos;un identifiant\" in the filling form. It would erase the existing metadata' data-original-title='' style='width: 50px;' src='./img/add_grand.png'></a>";
 							}
 						}
 					}
