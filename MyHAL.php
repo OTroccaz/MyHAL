@@ -751,24 +751,30 @@ if (isset($_POST["soumis"])) {
                                     <div class="card-body">
                                         
                                         <h5 class="badge badge-primary badge-pill">Settings</h5>
-																				<script>
-																					function openWin() {
-																						myWindow = window.open("https://univ-rennes.hal.science/submit/addfile/docid/XXXXXX", "_blank", "width=200, height=100");
-																					}
-																					function closeWin() {
-																						setTimeout(myWindow.close(), 3000);
-																					} 
-																				</script>
 																				<form method="POST" accept-charset="utf-8" name="myhal" action="MyHAL.php?id=ok" class="form-horizontal">
 																						<div class="border border-dark rounded p-2 mb-2">
 																								<?php
 																									if (!isset($_GET['id'])) {
 																								?>
+																								<script>
+																									myWindow = window.open("https://univ-rennes.hal.science/submit/addfile/docid/XXXXXX", "_blank", "width=200, height=100");
+																									let startDate = new Date().getTime();
+																									let endDate = startDate;
+
+																									// Added 3 sec timer
+																									while (endDate < startDate + 3000) {
+																										 endDate = new Date().getTime();
+																									}
+																									myWindow.close();
+																									window.location.assign("#?id=ok");
+																								</script>
+																								<!--
 																								<div id="clickhere" class="form-group row mb-1 justify-content-center d-flex">
 																									<span class="col-12 col-md-12 col-form-label font-weight-bold justify-content-center d-flex">
-																										Click&nbsp;<a href='?id=ok' onclick='openWin(); closeWin(); document.getElementById("clickhere").style.visibility="hidden";'>HERE</a>&nbsp;to get started
+																										Click&nbsp;<a href='?id=ok' onclick='openWin(); document.getElementById("clickhere").style.visibility="hidden"; closeWin();'>HERE</a>&nbsp;to get started
 																									</span>
 																								</div>
+																								-->
 																								<?php
 																									}
 																								?>
