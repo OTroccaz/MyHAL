@@ -647,7 +647,7 @@ if (isset($_POST["soumis"])) {
 		$atesteropt .= "%20AND%20collCode_s:".$collection_exp;
 	}
 	if (isset($coll2) && $coll2 != "") {
-		if (isset($coll) && $coll != "") {
+		if (isset($coll) && $coll != "-") {
 			$atesteropt .= "%20OR%20collCode_s:".$coll2;
 		}else{
 			$atesteropt .= "%20AND%20collCode_s:".$coll2;
@@ -948,7 +948,7 @@ if (isset($_POST["soumis"])) {
 																								<div class="col-12 col-md-4 form-inline">
 				 
 																										<label for="coll2">and/or your HAL collection code (optional): </label>
-																										<input type="text" id="coll2" name="coll2" class="form-control" value="">
+																										<input type="text" id="coll2" name="coll2" class="form-control" value="<?php echo $coll2;?>">
 																										
 																								</div>
 																						</div> <!-- .form-group -->
