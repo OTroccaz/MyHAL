@@ -235,6 +235,7 @@ suppression("./HAL", 3600);
 $unicite = time();
 
 $collcodechk = "";
+$nofulltextchk = "";
 $showfivechk = "checked=\"\"";
 
 if (isset($_POST["soumis"])) {
@@ -259,6 +260,7 @@ if (isset($_POST["soumis"])) {
 	$coll = htmlspecialchars($_POST["coll"]);
 	$coll2 = htmlspecialchars($_POST["coll2"]);
 	if (isset($_POST["collcode"]) && $_POST["collcode"] == "oui") {$collcodechk = "checked=\"\"";}
+	if (isset($_POST["nofulltext"]) && $_POST["nofulltext"] == "oui") {$nofulltextchk = "checked=\"\"";}
 	if (isset($_POST["showfive"]) && $_POST["showfive"] == "oui") {$showfivechk = "checked=\"\"";}else{$showfivechk = "";}
 
 
@@ -912,7 +914,7 @@ if (isset($_POST["soumis"])) {
 																						
 																						<div class="form-group row mb-2">
 																								<div class="col-12 col-md-7 form-inline">
-																										<label for="coll" class="mr-2">Your lab: </label>
+																										<label for="coll" class="mr-2">Your lab (optional): </label>
 																										<div class="input-group">
 																												<div class="input-group-prepend">
 																														<button type="button" tabindex="0" class="btn btn-info" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='Optional but may be useful if you have namesakes (homonymes)' data-original-title="" data-placement="top">
@@ -933,7 +935,7 @@ if (isset($_POST["soumis"])) {
 																								</div>
 																								<div class="col-12 col-md-4 form-inline">
 				 
-																										<label for="coll2">and/or your HAL collection code : </label>
+																										<label for="coll2">and/or your HAL collection code (optional): </label>
 																										<input type="text" id="coll2" name="coll2" class="form-control" value="">
 																										
 																								</div>
@@ -944,11 +946,22 @@ if (isset($_POST["soumis"])) {
 																									<div class="custom-control custom-checkbox">
 																										<input type="checkbox" id="collcode" class="custom-control-input" name="collcode" value="oui" <?php echo $collcodechk;?>>
 																										<label for="collcode" class="custom-control-label">
-																										Check if your papers are included in your lab Hceres list
+																										Check if your papers are included in your lab Hceres list (optional)
 																										</label>
 																										<button type="button" tabindex="0" class="btn btn-info btn-sm" data-html="false" data-toggle="popover" data-trigger="focus" title="" data-content='Some papers may not bear the right affiliation, and thus not be included in your lab Hceres list' data-original-title="" data-placement="top">
 																														<i class="mdi mdi-help text-white"></i>
 																										</button>
+																									</div>
+																								</div>
+																						</div> <!-- .form-group -->
+																						
+																						<div class="form-group row mb-1">
+																								<div class="form-group col-sm-12">
+																									<div class="custom-control custom-checkbox">
+																										<input type="checkbox" id="nofulltext" class="custom-control-input" name="nofulltext" value="oui" <?php echo $nofulltextchk;?>>
+																										<label for="nofulltext" class="custom-control-label">
+																										Show only records without full text (optional)
+																										</label>
 																									</div>
 																								</div>
 																						</div> <!-- .form-group -->
@@ -1025,24 +1038,80 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 		echo '<br><br>No result<br>';
 		echo '<span class="text-primary">>>>> Please check if your first and last names are stated correctly, including accents and special characters</span>';	
 	}else{
-		//Vérification préalable > Si 2 notices ont des liens HAL identiques, n'en afficher qu'une seule (avec priorité pour celle qui a un PDF le cas échéant)
-		$tabAff = array();
-		$tabHid = array();
-		$tabFil = array();
-		$tab = 0;
-		foreach($results->response->docs as $entry){
-			if (!in_array($entry->halId_s, $tabHid)) {
-				$tabHid[$tab] = $entry->halId_s;
-				$tabAff[$tab] = "oui";
-				if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {$tabFil[$tab] = "oui";}else{$tabFil[$tab] = "non";}
-			}else{
-				$numFound--;
-				$key = array_search($entry->halId_s, $tabHid);
-				if ($tabFil[$key] == "oui") {$tabAff[$tab] = "non";}else{$tabAff[$key] = "non"; $tabAff[$tab] = "oui";}
+		//Si demandé, ne récupérer que les notices sans texte intégral associé
+		if (isset($_POST["nofulltext"]) && $_POST["nofulltext"] == "oui") {
+			$tabAff = array();
+			$tabHid = array();
+			$tab = 0;
+			$numFound = 0;
+			$docType = $results->response->docs[0]->docType_s;
+			$subType = "";
+			foreach($results->response->docs as $entry){
+				if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
+				}else{
+					if ($docType != $entry->docType_s) {//Nouveau type de document
+						$docType = $entry->docType_s;
+						if ($docType != "COMM") {
+						}else{
+							if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
+							if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
+								$subType = $subTypeN;
+							}
+						}
+					}
+					if ($docType == "COMM") {
+						if (isset($entry->proceedings_s) && $entry->proceedings_s == "1") {$subTypeN = "Proceedings papers";}else{$subTypeN = "Conference abstracts";}
+						if ($subTypeN != $subType) {//Nouveau type de document parmi les COMM
+							$subType = $subTypeN;
+						}
+					}
+					if ($entry->docType_s == "ART" || ($entry->docType_s == "COMM" && $subTypeN == "Proceedings papers")) {
+						if (isset($entry->linkExtId_s) && $entry->linkExtId_s == "arxiv") {
+						}else{
+							if (isset($entry->doiId_s)) {
+								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=doiId_s:%22".$entry->doiId_s."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+							}else{
+								$reqCRAC = "https://api.archives-ouvertes.fr/crac/hal/?q=title_s:%22".rawurlencode($entry->title_s[0])."%22%20AND%20status_i:%220%22&fl=submittedDate_s";
+							}
+							$reqCRAC = str_replace('"', '%22', $reqCRAC);
+							$reqCRAC = str_replace(" ", "%20", $reqCRAC);
+							//echo $reqCRAC.'<br>';
+							
+							$contCRAC = file_get_contents($reqCRAC);
+							//$contCRAC = utf8_encode($contCRAC);
+							$resCRAC = json_decode($contCRAC);
+							$numFCRAC = 0;
+							if (isset($resCRAC->response->numFound)) {$numFCRAC = $resCRAC->response->numFound;}
+							if ($numFCRAC == 0) {//Pas de texte intégral associé
+								$tabHid[$tab] = $entry->halId_s;
+								$tabAff[$tab] = "oui";
+								$numFound++;
+							}
+						}
+					}
+				}
+				$tab++;
 			}
-			$tab++;
+		}else{
+			//Vérification préalable > Si 2 notices ont des liens HAL identiques, n'en afficher qu'une seule (avec priorité pour celle qui a un PDF le cas échéant)
+			$tabAff = array();
+			$tabHid = array();
+			$tabFil = array();
+			$tab = 0;
+			foreach($results->response->docs as $entry){
+				if (!in_array($entry->halId_s, $tabHid)) {
+					$tabHid[$tab] = $entry->halId_s;
+					$tabAff[$tab] = "oui";
+					if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {$tabFil[$tab] = "oui";}else{$tabFil[$tab] = "non";}
+				}else{
+					$numFound--;
+					$key = array_search($entry->halId_s, $tabHid);
+					if ($tabFil[$key] == "oui") {$tabAff[$tab] = "non";}else{$tabAff[$key] = "non"; $tabAff[$tab] = "oui";}
+				}
+				$tab++;
+			}
 		}
-		
+		//var_dump($tabHid);
 		//echo '<div class="alert alert-warning" role="alert"><strong><i class="mdi mdi-exclamation-thick"></i>Be sure to be <a target="_blank" rel="noopener noreferrer" href="https://hal.archives-ouvertes.fr/">logged in HAL</a> before adding files (ADD button) / Vous devez d\'abord être <a target="_blank" rel="noopener noreferrer" href="https://hal.archives-ouvertes.fr/">connecté à HAL</a> pour ajouter des fichiers (bouton ADD)</strong></div>';
 
 		echo '<b>'.$numFound.' paper(s) for '.$yeardeb.'-'.$yearfin.'</b><br>';
@@ -1069,7 +1138,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 		echo '<h6><b>'.$year.'</b></h6>';
 		$sect->writeText('<b>'.$year.'</b><br>', $fonth3);
 		foreach($results->response->docs as $entry){
-			if ($tabAff[$tab] == "oui") {
+			if (isset($tabAff[$tab]) && $tabAff[$tab] == "oui") {
 				if ($docType != $entry->docType_s) {//Nouveau type de document
 					$docType = $entry->docType_s;
 					if ($docType != "COMM") {
@@ -1118,7 +1187,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 				
 				$citFull = $entry->citationFull_s;
 				$labelS = $entry->label_s;
-				//Si demandé, afficher la liste complète des auteurs
+				//Si demandée, afficher la liste complète des auteurs
 				if (!isset($_POST["showfive"])) {
 					$listAut = "";
 					$autEtal = "";
