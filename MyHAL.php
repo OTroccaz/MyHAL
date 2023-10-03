@@ -1158,7 +1158,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 			if (isset($tabAff[$tab]) && $tabAff[$tab] == "oui") {
 				if ($docType != $entry->docType_s) {//Nouveau type de document
 					$docType = $entry->docType_s;
-					if ($docType != "COMM") {
+					if ($docType != "COMM" && isset($DOCTYPE_LISTE[$docType])) {
 						echo '<br><br><h4><b>'.$DOCTYPE_LISTE[$docType].'</b></h4>';
 						$sect->writeText($DOCTYPE_LISTE[$docType]."<br><br>", $fonth2);
 					}else{
