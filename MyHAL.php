@@ -7,7 +7,7 @@
  *
  * Page d'accueil - Home page
  */
- 
+ header('Content-Encoding: none;');
 //authentification CAS ou autre ?
 if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false) {
   include('./_connexion.php');
@@ -212,6 +212,18 @@ function wd_remove_accents($str, $charset='utf-8')
     $str = preg_replace('#&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);#', '\1', $str);
     $str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
     return preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
+}
+
+function progression($indice, $iMax, $id, &$iPro, $quoi) {
+	$iPro = $indice;
+	echo '<script>';
+  echo 'var txt = \'Traitement '.$quoi.' '.$indice.' sur '.$iMax.'<br>\';';
+	echo 'document.getElementById(\''.$id.'\').innerHTML = txt';
+	echo '</script>';
+	ob_flush();
+	flush();
+	ob_flush();
+	flush();
 }
 
 //Initialisation des variables
@@ -1033,6 +1045,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 	echo '<div class="col-12">';
 	echo '<div class="card shadow-lg w-100">';
   echo '<div class="card-body">';
+	echo '<div id=\'cpt\'></div>';
 	if ($numFound == 0) {//Y-a-t-il au moins un résultat ?	
 		echo '<a target=\'_blank\' href=\''.$reqAPI.'\'>API request link</a>';
 		echo '<br><br>No result<br>';
@@ -1040,13 +1053,16 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 	}else{
 		//Si demandé, ne récupérer que les notices sans texte intégral associé
 		if (isset($_POST["nofulltext"]) && $_POST["nofulltext"] == "oui") {
+			$numFoundinit = $numFound;
 			$tabAff = array();
 			$tabHid = array();
 			$tab = 0;
 			$numFound = 0;
 			$docType = $results->response->docs[0]->docType_s;
 			$subType = "";
+			$i = 1;
 			foreach($results->response->docs as $entry){
+				progression($i, $numFoundinit, 'cpt', $iPro, 'notice');
 				if (isset($entry->files_s[0]) && $entry->files_s[0] != "") {
 				}else{
 					if ($docType != $entry->docType_s) {//Nouveau type de document
@@ -1091,6 +1107,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 					}
 				}
 				$tab++;
+				$i++;
 			}
 		}else{
 			//Vérification préalable > Si 2 notices ont des liens HAL identiques, n'en afficher qu'une seule (avec priorité pour celle qui a un PDF le cas échéant)
@@ -1239,6 +1256,7 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 				echo '<br><br>';
 				$sect->writeText($labelS, $font);
 				$sect->writeText("<br><br>", $font);
+				progression($i, $numFound, 'cpt', $iPro, 'notice sans texte intégral');
 				$i++;
 			}
 			$tab++;
@@ -1248,6 +1266,9 @@ if (isset($_POST["soumis"]) && $test == "oui") {
 		echo '<br>';
 	}
 	echo '</div> <!-- end card-body--> </div> <!-- end card--> </div> <!-- end col --> </div> <!-- end row --></div> </div>  <!-- end container -->';
+	echo '<script>';
+	echo 'document.getElementById(\'cpt\').style.display = \'none\';';
+	echo '</script>';
 }
 ?>
 								
