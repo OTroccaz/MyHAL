@@ -641,15 +641,16 @@ if (isset($_POST["soumis"])) {
 		}
 	}
 	
-	//Collection
+	//Collection(s)
 	if (isset($coll) && $coll != "-") {
 		$collection_exp = array_search($coll, $CODCOLL_LISTE);
-		$atesteropt .= "%20AND%20collCode_s:".$collection_exp;
-	}
-	if (isset($coll2) && $coll2 != "") {
-		if (isset($coll) && $coll != "-") {
-			$atesteropt .= "%20OR%20collCode_s:".$coll2;
+		if (isset($coll2) && $coll2 != "") {
+			$atesteropt .= "%20AND%20collCode_s:(".$collection_exp."%20OR%20".$coll2.")";
 		}else{
+			$atesteropt .= "%20AND%20collCode_s:".$collection_exp;
+		}
+	}else{
+		if (isset($coll2) && $coll2 != "") {
 			$atesteropt .= "%20AND%20collCode_s:".$coll2;
 		}
 	}
