@@ -71,6 +71,13 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
 </head>
 
 <?php
+//Stats Google
+if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') === false) {
+	include("./Glob_gstats.php");
+}
+?>
+
+<?php
 function suppression($dossier, $age) {
   $repertoire = opendir($dossier);
     while(false !== ($fichier = readdir($repertoire)))
