@@ -7,7 +7,9 @@
  *
  * Page d'accueil - Home page
  */
- header('Content-Encoding: none;');
+if (strpos($_SERVER['HTTP_HOST'], 'cnrs.fr') !== false) {
+	header('Content-Encoding: none;');
+}
 //authentification CAS ou autre ?
 if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false) {
   include('./_connexion.php');
