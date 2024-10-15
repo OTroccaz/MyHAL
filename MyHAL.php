@@ -754,7 +754,7 @@ if (isset($_POST["soumis"])) {
                                         <div class=" mb-2">
                                             <ul class="list-group">
                                                 <li class="list-group-item">
-                                                    <a target="_blank" rel="noopener noreferrer" href="https://scienceouverte.univ-rennes1.fr/votre-bilan-crac-ribac">Your CRAC / RIBAC</a>
+                                                    <a target="_blank" rel="noopener noreferrer" href="https://scienceouverte.univ-rennes.fr/votre-bilan-crac-ribac">Your CRAC / RIBAC</a>
                                                 </li>
 												<li class="list-group-item">
 														<a target="_blank" rel="noopener noreferrer" href="https://halur.univ-rennes.fr/MyHAL_Tutorial.pdf"><i class="mdi mdi-file-pdf-box-outline mr-1"></i> MyHAL Tutorial</a>
