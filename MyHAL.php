@@ -70,14 +70,14 @@ if ($redir == "oui") {header("Location: ".$urlnet);}
 	<!-- third party js ends -->
 	<script src="./assets/js/pages/hal-ur1.chartjs.js"></script>
 	
+	<?php
+	//Stats Google
+	if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') === false) {
+		include("./Glob_gstats.php");
+	}
+	?>
+	
 </head>
-
-<?php
-//Stats Google
-if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') === false) {
-	include("./Glob_gstats.php");
-}
-?>
 
 <?php
 function suppression($dossier, $age) {
