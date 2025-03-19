@@ -709,7 +709,7 @@ if (isset($_POST["soumis"])) {
                                     <div class="page-title-right">
                                         <nav aria-label="breadcrumb">
                                             <ol class="breadcrumb bg-light-lighten p-2">
-																								<li><a href="https://halur1.univ-rennes1.fr/MyHAL.php?logout="><i class="uil-power"></i> Déconnexion CAS CCSD</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+																								<li><a href="https://halur.univ-rennes.fr/MyHAL.php?logout="><i class="uil-power"></i> Déconnexion CAS CCSD</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
                                                 <li class="breadcrumb-item"><a href="index.php"><i class="uil-home-alt"></i> Accueil HALUR</a></li>
                                                 <li class="breadcrumb-item active" aria-current="page">My<span class="font-weight-bold">HAL</span></li>
                                             </ol>
@@ -757,7 +757,7 @@ if (isset($_POST["soumis"])) {
                                                     <a target="_blank" rel="noopener noreferrer" href="https://scienceouverte.univ-rennes.fr/votre-bilan-crac-ribac">Your CRAC / RIBAC</a>
                                                 </li>
 												<li class="list-group-item">
-														<a target="_blank" rel="noopener noreferrer" href="https://halur.univ-rennes.fr/MyHAL_Tutorial.pdf"><i class="mdi mdi-file-pdf-box-outline mr-1"></i> MyHAL Tutorial</a>
+														<a target="_blank" rel="noopener noreferrer" href="./MyHAL_Tutorial.pdf"><i class="mdi mdi-file-pdf-box-outline mr-1"></i> MyHAL Tutorial</a>
 												</li>
                                             </ul> 
                                         </div>
